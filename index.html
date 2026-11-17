@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DersPlus - Eğitim Platformu</title>
+    <!-- Tailwind CSS ve Alpine.js -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-[#f7f8f5] text-[#202c32] font-sans antialiased" x-data="dersPlusApp()">
+
+    <!-- Üst Menü -->
+    <header class="bg-[#244d46] text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl font-black tracking-tight">Ders<span class="text-[#fa9a79]">Plus</span></span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="text-xs bg-[#32675d] px-3 py-1 rounded-full font-medium" x-text="student.name + ' (' + student.level + ')'"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Ana İçerik Alanı -->
+    <main class="max-w-6xl mx-auto px-4 py-6 pb-24">
+        
+        <!-- Sekme 1: Katalog / Dersler -->
+        <div x-show="activeTab === 'catalog'">
+            <div class="mb-6 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-slate-900">Ders Kataloğu</h1>
+                <span class="text-sm text-slate-500" x-text="lessons.length + ' ders listeleniyor'"></span>
+            </div>
+
+            <!-- Filtreler -->
+            <div class="flex gap-2 overflow-x-auto pb-3 mb-4">
+                <template x-for="sub in subjects" :key="sub">
+                    <button @click="selectedSubject = sub" 
+                            :class="selectedSubject === sub ? 'bg-[#3c806d] text-white' : 'bg-white text-slate-600 border border-slate-200'"
+                            class="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap shadow-sm transition"
+                            x-text="sub">
+                    </button>
+                </template>
+            </div>
+
+            <!-- Ders Kartları -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <template x-for="lesson in filteredLessons" :key="lesson.id">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-[#eaf5ee] text-[#3c806d]" x-text="lesson.subject"></span>
+                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800" x-text="lesson.tag"></span>
+                            </div>
+                            <h3 class="font-bold text-lg text-slate-900 mb-1" x-text="lesson.title"></h3>
+                            <p class="text-xs text-slate-500 mb-4" x-text="lesson.grade + ' • ' + lesson.duration"></p>
+                        </div>
+                        <div>
+                            <div class="w-full bg-slate-100 rounded-full h-2 mb-3">
+                                <div class="bg-[#3c806d] h-2 rounded-full" :style="'width: ' + lesson.progress + '%'"></div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-slate-500" x-text="'İlerleme: %' + lesson.progress"></span>
+                                <button @click="startLesson(lesson)" class="bg-[#3c806d] text-white text-xs px-4 py-2 rounded-xl font-medium hover:bg-[#2b5e50] transition">İzle / Çöz</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Sekme 2: Paketler / Fiyatlandırma -->
+        <div x-show="activeTab === 'plans'" x-cloak>
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Hedefine Uygun Paketi Seç</h1>
+                <p class="text-slate-500">YKS ve okul sınavlarında başarıyı yakala.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <template x-for="plan in plans" :key="plan.id">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900 mb-2" x-text="plan.name"></h3>
+                            <div class="text-3xl font-black text-[#3c806d] mb-6">
+                                <span x-text="plan.price + ' TL'"></span>
+                                <span class="text-xs text-slate-400 font-normal">/' + plan.period</span>
+                            </div>
+                            <ul class="space-y-3 mb-6">
+                                <template x-for="feature in plan.features" :key="feature">
+                                    <li class="text-sm text-slate-600 flex items-center">
+                                        <span class="text-[#3c806d] mr-2 font-bold">✓</span> <span x-text="feature"></span>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                        <button @click="subscribePlan(plan)" class="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold text-sm hover:bg-[#3c806d] transition">Hemen Başvur</button>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Sekme 3: Profil / İlerleme -->
+        <div x-show="activeTab === 'profile'" x-cloak>
+            <h1 class="text-2xl font-bold text-slate-900 mb-6">Öğrenci Profilim</h1>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="w-16 h-16 bg-[#c6efdc] text-[#27745f] rounded-full flex items-center justify-center text-2xl font-bold">AY</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900" x-text="student.name"></h2>
+                        <p class="text-sm text-slate-500" x-text="student.grade + ' • ' + student.plan + ' Üye'"></p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 border-t pt-4">
+                    <div class="bg-slate-50 p-4 rounded-xl text-center">
+                        <span class="block text-2xl font-black text-[#fa9a79]" x-text="student.streak + ' gün'"></span>
+                        <span class="text-xs text-slate-500 font-medium">Günlük Seri 🔥</span>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl text-center">
+                        <span class="block text-2xl font-black text-[#3c806d]" x-text="'%' + student.weekly_goal"></span>
+                        <span class="text-xs text-slate-500 font-medium">Haftalık Hedef 🎯</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Alt Navigasyon Çubuğu (Mobil Uyumlu) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-3 px-6 flex justify-around items-center z-50">
+        <button @click="activeTab = 'catalog'" :class="activeTab === 'catalog' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-medium">
+            <span class="text-lg">📚</span>
+            <span>Dersler</span>
+        </button>
+        <button @click="activeTab = 'plans'" :class="activeTab === 'plans' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-medium">
+            <span class="text-lg">⭐</span>
+            <span>Paketler</span>
+        </button>
+        <button @click="activeTab = 'profile'" :class="activeTab === 'profile' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-medium">
+            <span class="text-lg">👤</span>
+            <span>Profilim</span>
+        </button>
+    </nav>
+
+    <!-- JavaScript Mantığı -->
+    <script>
+        function dersPlusApp() {
+            return {
+                activeTab: 'catalog',
+                selectedSubject: 'Tümü',
+                subjects: ['Tümü', 'Matematik', 'Fen Bilimleri', 'Türkçe', 'Fizik'],
+                student: {
+                    name: "Ada Yılmaz",
+                    grade: "12. Sınıf / YKS",
+                    level: "Lise",
+                    plan: "Uzman",
+                    streak: 12,
+                    weekly_goal: 78
+                },
+                lessons: [
+                    { id: "math-fractions", title: "Kesirlerle İşlemler", subject: "Matematik", level: "İlkokul", grade: "5. Sınıf", type: "video", duration: "18 dk", progress: 72, tag: "Yeni" },
+                    { id: "science-cells", title: "Hücrenin Yapısı", subject: "Fen Bilimleri", level: "Ortaokul", grade: "7. Sınıf", type: "reading", duration: "12 dk", progress: 34, tag: "Popüler" },
+                    { id: "turkish-meaning", title: "Sözcükte Anlam", subject: "Türkçe", level: "İlkokul", grade: "6. Sınıf", type: "quiz", duration: "10 soru", progress: 0, tag: "Test" },
+                    { id: "physics-motion", title: "Kuvvet ve Hareket", subject: "Fizik", level: "Lise", grade: "9. Sınıf", type: "video", duration: "24 dk", progress: 58, tag: "TYT" },
+                    { id: "math-functions", title: "Fonksiyonlara Giriş", subject: "Matematik", level: "Lise", grade: "12. Sınıf", type: "quiz", duration: "15 soru", progress: 18, tag: "AYT" }
+                ],
+                plans: [
+                    { id: "baslangic", name: "Başlangıç", price: 100, period: "aylık", features: ["Temel ders içerikleri", "Aylık mini testler", "İlerleme özeti"] },
+                    { id: "gelisen", name: "Gelişen", price: 200, period: "aylık", features: ["Tüm ders içerikleri", "Sınırsız test çözümü", "Haftalık çalışma planı"] },
+                    { id: "uzman", name: "Uzman", price: 350, period: "aylık", features: ["Gelişen paketteki her şey", "Yıllık başarı takibi", "TYT + AYT kampı"] }
+                ],
+                get filteredLessons() {
+                    if (this.selectedSubject === 'Tümü') return this.lessons;
+                    return this.lessons.filter(l => l.subject === this.selectedSubject);
+                },
+                startLesson(lesson) {
+                    alert(lesson.title + " dersi açılıyor!");
+                    lesson.progress = Math.min(100, lesson.progress + 15);
+                },
+                subscribePlan(plan) {
+                    alert(plan.name + " paketini seçtiğiniz için teşekkürler!");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
