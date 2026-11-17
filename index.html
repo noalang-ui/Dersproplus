@@ -6,26 +6,59 @@
     <title>DersProPlus - YKS Hazırlık Platformu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- Google Identity Services (Gerçek Google Giriş Altyapısı) -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="bg-[#f7f8f5] text-[#202c32] font-sans antialiased" x-data="dersProPlusApp()">
 
-    <!-- GERÇEK GOOGLE GİRİŞ EKRANI -->
+    <!-- GOOGLE HESAP SEÇİM VE GİRİŞ EKRANI -->
     <div x-show="!isLoggedIn" class="fixed inset-0 bg-[#1d3f39] z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl text-center">
+        
+        <!-- Adım 1: Ana Giriş Butonu -->
+        <div x-show="authStep === 'home'" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl text-center">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-[#c6efdc] text-[#244d46] rounded-2xl text-3xl font-black mb-4">DP+</div>
             <h1 class="text-2xl font-black text-slate-900 mb-1">DersPro<span class="text-[#fa9a79]">Plus</span></h1>
-            <p class="text-xs text-slate-500 mb-6">2027 YKS (TYT-AYT) Akıllı Eğitim Platformu</p>
-            
-            <p class="text-xs text-slate-600 mb-4">Devam etmek için Google hesabınızla oturum açın:</p>
-            
-            <!-- Google'ın Resmi Oturum Açma Butonu Alanı -->
-            <div id="googleSignInBtn" class="flex justify-center"></div>
-
-            <p class="text-[10px] text-slate-400 mt-6">Google hesabınızla güvenli bir şekilde kaydolur veya giriş yaparsınız.</p>
+            <p class="text-xs text-slate-500 mb-8">2027 YKS (TYT-AYT) Akıllı Eğitim Platformu</p>
+            <button @click="authStep = 'chooser'" class="w-full flex items-center justify-center gap-3 border border-slate-300 py-3.5 px-4 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm">
+                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"/></svg>
+                Google ile Oturum Aç
+            </button>
         </div>
+
+        <!-- Adım 2: E-posta Zinciri (ChatGPT Tarzı Hesap Seçici) -->
+        <div x-show="authStep === 'chooser'" class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+            <button @click="authStep = 'home'" class="absolute top-4 right-4 text-slate-400 font-bold text-xs">✕</button>
+            <div class="flex items-center gap-2 mb-1">
+                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"/></svg>
+                <span class="text-base font-bold text-slate-900">Bir hesap seçin</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">OpenAI / DersProPlus uygulamasına devam edin</p>
+            
+            <div class="border border-slate-200 rounded-2xl divide-y divide-slate-100 mb-4">
+                <template x-for="acc in googleAccounts" :key="acc.email">
+                    <button @click="selectAcc(acc)" class="w-full flex items-center gap-3.5 p-3.5 hover:bg-slate-50 text-left transition">
+                        <div :class="acc.bg" class="w-10 h-10 rounded-full text-white font-bold text-sm flex items-center justify-center shrink-0" x-text="acc.initial"></div>
+                        <div>
+                            <div class="text-xs font-bold text-slate-900" x-text="acc.name"></div>
+                            <div class="text-[11px] text-slate-500" x-text="acc.email"></div>
+                        </div>
+                    </button>
+                </template>
+            </div>
+        </div>
+
+        <!-- Adım 3: Alan ve Hedef Seçimi -->
+        <div x-show="authStep === 'profile'" class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl">
+            <h2 class="text-base font-extrabold text-slate-900 mb-2">Hedefini Onayla</h2>
+            <p class="text-xs text-slate-500 mb-4" x-text="activeAcc.email"></p>
+            <div class="space-y-3 mb-4">
+                <select x-model="selectedTrack" class="w-full border rounded-xl px-3.5 py-2.5 text-sm bg-white">
+                    <option value="TYT Hazırlık">TYT Hazırlık</option>
+                    <option value="AYT Sayısal">AYT Sayısal</option>
+                </select>
+            </div>
+            <button @click="isLoggedIn = true; student.name = activeAcc.name; student.email = activeAcc.email; student.track = selectedTrack;" class="w-full bg-[#3c806d] text-white py-3 rounded-2xl font-bold text-sm">Devam Et →</button>
+        </div>
+
     </div>
 
     <!-- ÜST MENÜ -->
@@ -34,7 +67,7 @@
             <span class="text-xl font-black">DersPro<span class="text-[#fa9a79]">Plus</span></span>
             <div class="flex items-center space-x-2">
                 <span class="text-xs bg-[#32675d] px-3 py-1 rounded-full" x-text="student.name + ' (' + student.email + ')'"></span>
-                <button @click="logout()" class="text-[11px] bg-red-500 px-2.5 py-1 rounded-full font-bold">Çıkış</button>
+                <button @click="isLoggedIn = false; authStep = 'home'" class="text-[11px] bg-red-500 px-2.5 py-1 rounded-full font-bold">Çıkış</button>
             </div>
         </div>
     </header>
@@ -78,48 +111,26 @@
         function dersProPlusApp() {
             return {
                 isLoggedIn: false,
+                authStep: 'home',
+                googleAccounts: [
+                    { name: 'Kerem Soygazlı', email: 'spiderman04072009@gmail.com', initial: 'K', bg: 'bg-emerald-600' },
+                    { name: 'Ahmet Dülger', email: 'dulger602@gmail.com', initial: 'A', bg: 'bg-blue-600' },
+                    { name: 'Ali Markat', email: 'alimarkat37@gmail.com', initial: 'A', bg: 'bg-purple-600' }
+                ],
+                activeAcc: { name: '', email: '' },
+                selectedTrack: 'AYT Sayısal',
                 selectedCategory: 'TYT',
                 selectedLesson: null,
-                student: { name: '', email: '' },
+                student: { name: '', email: '', track: '' },
                 lessons: [
                     { id: '1', title: 'Temel Kavramlar ve Sayılar', category: 'TYT', notes: 'ÖSYM temel kavramlardan her yıl banko soru sorar.' },
                     { id: '2', title: 'Rasyonel Sayılar ve Kesirler', category: 'TYT', notes: 'Şekilli ve yeni nesil kesir problemleri.' },
                     { id: '3', title: 'Fonksiyonlar ve Grafik Yorumlama', category: 'AYT', notes: 'Bileşke ve ters fonksiyon uygulamaları.' },
                     { id: '4', title: 'Logaritma ve Özellikleri', category: 'AYT', notes: 'Logaritmik denklemler ve tanım aralığı.' }
                 ],
-                init() {
-                    // Google One Tap / Sign-In Entegrasyonu
-                    window.onload = () => {
-                        google.accounts.id.initialize({
-                            client_id: "SENIN_GOOGLE_CLIENT_ID.apps.googleusercontent.com", // Kendi Google Client ID'ni buraya yazacaksın
-                            callback: (response) => {
-                                this.handleGoogleResponse(response);
-                            }
-                        });
-                        google.accounts.id.renderButton(
-                            document.getElementById("googleSignInBtn"),
-                            { theme: "outline", size: "large", width: "280" }
-                        );
-                    };
-                },
-                handleGoogleResponse(response) {
-                    // Google'dan dönen şifrelenmiş token'ı çözer (JWT decode)
-                    const base64Url = response.credential.split('.')[1];
-                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                        return '%' + ('00 ' + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join(''));
-                    
-                    const data = JSON.parse(jsonPayload);
-                    
-                    // Kullanıcı bilgilerini ata ve uygulamaya sok
-                    this.student.name = data.name;
-                    this.student.email = data.email;
-                    this.isLoggedIn = true;
-                },
-                logout() {
-                    this.isLoggedIn = false;
-                    this.student = { name: '', email: '' };
+                selectAcc(acc) {
+                    this.activeAcc = acc;
+                    this.authStep = 'profile';
                 },
                 get filteredLessons() {
                     return this.lessons.filter(l => l.category === this.selectedCategory);
