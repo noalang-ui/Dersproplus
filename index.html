@@ -3,96 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giriş Ekranı</title>
+    <title>YKS AI & OGM/ÖSYM Çalışma Platformu</title>
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* GİRİŞ EKRANI */
+        #giris-ekrani {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
         }
-        #giris-ekrani {
-            background: #1e1e1e;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        .login-box {
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 380px;
             text-align: center;
-            width: 320px;
+            border: 1px solid #334155;
         }
+        .login-box h2 { margin-bottom: 10px; color: #38bdf8; }
+        .login-box p { font-size: 14px; color: #94a3b8; margin-bottom: 20px; }
+        
+        .form-grup {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .form-grup.aktif { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         input {
-            width: 90%;
-            padding: 10px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-            background: #2c2c2c;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
             color: white;
+            font-size: 15px;
         }
-        button {
-            width: 96%;
-            padding: 10px;
-            background: #4caf50;
-            border: none;
-            border-radius: 5px;
-            color: white;
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
+            transition: 0.2s;
+            border: none;
         }
-        button:hover {
-            background: #45a049;
+        .btn-primary { background: #0284c7; color: white; margin-bottom: 10px; }
+        .btn-primary:hover { background: #0369a1; }
+        
+        .btn-google { background: #ea4335; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        .btn-google:hover { background: #d33828; }
+
+        .btn-secondary { background: #334155; color: #cbd5e1; }
+        .btn-secondary:hover { background: #475569; }
+
+        .buton-grubu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        #hata-mesaji {
-            color: #ff5252;
-            font-size: 14px;
-            margin-top: 10px;
+
+        #hata-mesaji { color: #f87171; font-size: 13px; margin-top: 12px; }
+        
+        .geri-don {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 15px;
+            cursor: pointer;
+            text-decoration: underline;
         }
+        .geri-don:hover { color: #f8fafc; }
+
+        /* ANA UYGULAMA ALANI */
         #ana-icerik {
             display: none;
-            width: 100%;
-            height: 100%;
+            height: 100vh;
+            width: 100vw;
         }
     </style>
 </head>
 <body>
 
-    <!-- GİRİŞ PROMPT ALANI -->
+    <!-- GİRİŞ & KAYIT EKRANI -->
     <div id="giris-ekrani">
-        <h2>Hoş Geldin</h2>
-        <p>Devam etmek için giriş bilgilerini gir:</p>
-        <input type="text" id="kullanici-adi" placeholder="Kullanıcı Adı" />
-        <input type="password" id="sifre" placeholder="Şifre" />
-        <button onclick="girisKontrol()">Giriş Yap</button>
-        <div id="hata-mesaji"></div>
+        <div class="login-box">
+            <h2>YKS AI Portal</h2>
+            <p>140 Konu • AI Anlatım • OGM & ÖSYM Soruları</p>
+
+            <!-- ANA MENÜ BUTONLARI -->
+            <div id="ana-butonlar" class="buton-grubu">
+                <button class="btn btn-primary" onclick="formGoster('giris')">Giriş Yap</button>
+                <button class="btn btn-secondary" onclick="formGoster('kaydol-secenekler')">Kaydol</button>
+            </div>
+
+            <!-- GİRİŞ YAP FORMU -->
+            <div id="form-giris" class="form-grup">
+                <input type="text" id="kullanici-adi" placeholder="Kullanıcı Adı veya E-posta (admin)" />
+                <input type="password" id="sifre" placeholder="Şifre (1234)" onkeypress="if(event.key==='Enter') girisKontrol()" />
+                <button class="btn btn-primary" onclick="girisKontrol()">Giriş Yap</button>
+                <button class="geri-don" onclick="formGoster('ana')">← Ana Menüye Dön</button>
+            </div>
+
+            <!-- KAYDOL SEÇENEKLERİ -->
+            <div id="form-kaydol-secenekler" class="form-grup">
+                <button class="btn btn-google" onclick=" sosyalKayit('Gmail')">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1h-9.17v2.73h6.51c-.33 1.74-1.78 3.04-3.51 3.04-2.12 0-3.84-1.72-3.84-3.84s1.72-3.84 3.84-3.84c.97 0 1.86.36 2.54 1.01l2.04-2.04C18.17 6.84 15.82 6 12.18 6 7.66 6 4 9.66 4 14.18s3.66 8.18 8.18 8.18c4.73 0 7.86-3.32 7.86-7.99 0-.55-.06-1.09-.17-1.27z"/></svg>
+                    Gmail ile Kaydol
+                </button>
+                <button class="btn btn-secondary" onclick="formGoster('eposta-kayit')">E-posta ile Kaydol</button>
+                <button class="geri-don" onclick="formGoster('ana')">← Ana Menüye Dön</button>
+            </div>
+
+            <!-- E-POSTA İLE KAYIT FORMU -->
+            <div id="form-eposta-kayit" class="form-grup">
+                <input type="text" id="kayit-kadi" placeholder="Ad Soyad / Kullanıcı Adı" />
+                <input type="email" id="kayit-eposta" placeholder="E-posta Adresi" />
+                <input type="password" id="kayit-sifre" placeholder="Şifre Belirle" />
+                <button class="btn btn-primary" onclick="epostaKayitOl()">Hesap Oluştur</button>
+                <button class="geri-don" onclick="formGoster('kaydol-secenekler')">← Geri Dön</button>
+            </div>
+
+            <div id="hata-mesaji"></div>
+        </div>
     </div>
 
-    <!-- SİTE İÇİ DİĞER HER ŞEYİN YÜKLENECEĞİ ALAN -->
+    <!-- VERILER JS İLE YÜKLENECEK ANA PANEL -->
     <div id="ana-icerik"></div>
 
-    <!-- Tüm site verileri ve içerik oluşturucu -->
-    <script src="veriler.js"></script>
+    <!-- Tüm 140 konu, AI anlatımları ve soru motoru -->
+    <script src="veriler1.js"></script>
 
-    <!-- Giriş Prompt Mantığı -->
+    <!-- Giriş ve Form Geçiş Scriptleri -->
     <script>
+        function formGoster(tip) {
+            document.getElementById("ana-butonlar").classList.remove("aktif");
+            document.getElementById("form-giris").classList.remove("aktif");
+            document.getElementById("form-kaydol-secenekler").classList.remove("aktif");
+            document.getElementById("form-eposta-kayit").classList.remove("aktif");
+            document.getElementById("hata-mesaji").textContent = "";
+
+            if (tip === 'ana') {
+                document.getElementById("ana-butonlar").classList.add("aktif");
+            } else if (tip === 'giris') {
+                document.getElementById("form-giris").classList.add("aktif");
+            } else if (tip === 'kaydol-secenekler') {
+                document.getElementById("form-kaydol-secenekler").classList.add("aktif");
+            } else if (tip === 'eposta-kayit') {
+                document.getElementById("form-eposta-kayit").classList.add("aktif");
+            }
+        }
+
+        // Sayfa ilk açıldığında ana butonları göster
+        formGoster('ana');
+
         function girisKontrol() {
             const kadi = document.getElementById("kullanici-adi").value.trim();
             const sifre = document.getElementById("sifre").value.trim();
             const hata = document.getElementById("hata-mesaji");
 
-            // Basit giriş kontrolü (İstediğin gibi değiştirebilirsin)
-            if (kadi === "admin" && sifre === "1234") {
-                document.getElementById("giris-ekrani").style.display = "none";
-                const anaIcerik = document.getElementById("ana-icerik");
-                anaIcerik.style.display = "block";
-                
-                // veriler.js içindeki fonksiyonu tetikleyip siteyi kuruyoruz
-                siteyiBaslat(kadi);
+            if ((kadi === "admin" || kadi !== "") && sifre === "1234") {
+                basariliGiris(kadi || "Öğrenci");
             } else {
-                hata.textContent = "Hatalı kullanıcı adı veya şifre! (İpucu: admin / 1234)";
+                hata.textContent = "Hatalı giriş! (Test için: admin / 1234)";
             }
+        }
+
+        function sosyalKayit(servis) {
+            alert(servis + " ile başarılı bir şekilde bağlandınız! Yönlendiriliyorsunuz...");
+            basariliGiris("Google Kullanıcısı");
+        }
+
+        function epostaKayitOl() {
+            const kadi = document.getElementById("kayit-kadi").value.trim();
+            const eposta = document.getElementById("kayit-eposta").value.trim();
+            const sifre = document.getElementById("kayit-sifre").value.trim();
+            const hata = document.getElementById("hata-mesaji");
+
+            if (kadi && eposta && sifre) {
+                alert("Kayıt başarıyla oluşturuldu! Hoş geldin, " + kadi);
+                basariliGiris(kadi);
+            } else {
+                hata.textContent = "Lütfen tüm alanları eksiksiz doldurun.";
+            }
+        }
+
+        function basariliGiris(kullaniciAdi) {
+            document.getElementById("giris-ekrani").style.display = "none";
+            document.getElementById("ana-icerik").style.display = "flex";
+            sistemiBaslat(kullaniciAdi); // veriler1.js içindeki ana fonksiyonu tetikler
         }
     </script>
 </body>
