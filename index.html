@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DersPlus - Eğitim Platformu</title>
-    <!-- Tailwind CSS ve Alpine.js -->
+    <title>DersPlus - YKS Akıllı Öğrenme Platformu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="bg-[#f7f8f5] text-[#202c32] font-sans antialiased" x-data="dersPlusApp()">
 
-    <!-- 1. GİRİŞ EKRANI (Eğer kullanıcı giriş yapmadıysa görünür) -->
+    <!-- 1. GİRİŞ EKRANI -->
     <div x-show="!isLoggedIn" class="fixed inset-0 bg-[#244d46] z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl text-center">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-[#c6efdc] text-[#27745f] rounded-2xl text-3xl font-black mb-4">DP</div>
-            <h1 class="text-2xl font-extrabold text-slate-900 mb-2">DersPlus'a Hoş Geldin</h1>
-            <p class="text-xs text-slate-500 mb-8">YKS hazırlık sürecinde yapay zeka destekli akıllı öğrenme asistanın.</p>
+            <h1 class="text-2xl font-extrabold text-slate-900 mb-2">DersPlus YKS'ye Hoş Geldin</h1>
+            <p class="text-xs text-slate-500 mb-6">Konuya özel detaylı anlatımlar ve ÖSYM / OGM Materyal tarzı testlerle hedefine ulaş.</p>
             
+            <div class="mb-4 text-left">
+                <label class="text-xs font-bold text-slate-600 block mb-1">Adın Soyadın:</label>
+                <input type="text" x-model="userNameInput" placeholder="Örn: Kaan Demir" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#3c806d]">
+            </div>
+
             <div class="space-y-3">
                 <button @click="loginWith('Google')" class="w-full flex items-center justify-center gap-3 border border-slate-200 py-3 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition">
                     <span class="text-lg">🌐</span> Google ile Oturum Aç
@@ -25,62 +30,65 @@
                     <span class="text-lg">✉️</span> E-posta ile Devam Et
                 </button>
             </div>
-            <p class="text-[10px] text-slate-400 mt-6">Devam ederek DersPlus kullanım koşullarını kabul etmiş olursun.</p>
         </div>
     </div>
 
-    <!-- Üst Menü -->
+    <!-- ÜST MENÜ -->
     <header class="bg-[#244d46] text-white shadow-md sticky top-0 z-40" x-show="isLoggedIn" x-cloak>
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2">
                 <span class="text-2xl font-black tracking-tight">Ders<span class="text-[#fa9a79]">Plus</span></span>
             </div>
-            <div class="flex items-center space-x-3">
-                <span class="text-xs bg-[#32675d] px-3 py-1 rounded-full font-medium" x-text="student.name + ' (' + student.level + ')'"></span>
+            <div class="flex items-center space-x-2">
+                <span class="text-xs bg-[#32675d] px-3 py-1 rounded-full font-medium" x-text="student.name + ' (YKS Sayısal)'"></span>
+                <button @click="isLoggedIn = false" class="text-[11px] bg-red-500/80 hover:bg-red-600 px-2.5 py-1 rounded-full">Çıkış</button>
             </div>
         </div>
     </header>
 
-    <!-- Ana İçerik Alanı -->
+    <!-- ANA İÇERİK -->
     <main class="max-w-6xl mx-auto px-4 py-6 pb-24" x-show="isLoggedIn" x-cloak>
         
-        <!-- Sekme 1: Katalog / Dersler -->
+        <!-- SEKME 1: DERS KATALOĞU -->
         <div x-show="activeTab === 'catalog'">
-            <div class="mb-6 flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-slate-900">Ders Kataloğu</h1>
-                <span class="text-sm text-slate-500" x-text="lessons.length + ' ders listeleniyor'"></span>
+            <div class="mb-5 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900">YKS Konu & Soru Havuzu</h1>
+                    <p class="text-xs text-slate-500">Önce konu özetini oku, ardından ÖSYM & OGM tarzı soruları çöz.</p>
+                </div>
+                <span class="text-xs font-bold bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-600" x-text="filteredLessons.length + ' Konu'"></span>
             </div>
 
-            <!-- Filtreler -->
-            <div class="flex gap-2 overflow-x-auto pb-3 mb-4">
+            <!-- Ders Filtreleri -->
+            <div class="flex gap-2 overflow-x-auto pb-3 mb-5">
                 <template x-for="sub in subjects" :key="sub">
                     <button @click="selectedSubject = sub" 
-                            :class="selectedSubject === sub ? 'bg-[#3c806d] text-white' : 'bg-white text-slate-600 border border-slate-200'"
-                            class="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap shadow-sm transition"
+                            :class="selectedSubject === sub ? 'bg-[#3c806d] text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200'"
+                            class="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition"
                             x-text="sub">
                     </button>
                 </template>
             </div>
 
-            <!-- Ders Kartları -->
+            <!-- Konu Kartları -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <template x-for="lesson in filteredLessons" :key="lesson.id">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
                         <div>
                             <div class="flex justify-between items-start mb-3">
-                                <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-[#eaf5ee] text-[#3c806d]" x-text="lesson.subject"></span>
-                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800" x-text="lesson.tag"></span>
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-[#eaf5ee] text-[#3c806d]" x-text="lesson.subject"></span>
+                                <span class="text-[11px] font-extrabold px-2 py-0.5 rounded bg-amber-100 text-amber-800" x-text="lesson.tag"></span>
                             </div>
                             <h3 class="font-bold text-lg text-slate-900 mb-1" x-text="lesson.title"></h3>
-                            <p class="text-xs text-slate-500 mb-4" x-text="lesson.grade + ' • ' + lesson.duration"></p>
+                            <p class="text-xs text-slate-500 mb-4" x-text="lesson.examType + ' • ' + lesson.questions.length + ' ÖSYM/OGM Sorusu'"></p>
                         </div>
                         <div>
                             <div class="w-full bg-slate-100 rounded-full h-2 mb-3">
                                 <div class="bg-[#3c806d] h-2 rounded-full transition-all duration-500" :style="'width: ' + lesson.progress + '%'"></div>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-xs text-slate-500" x-text="'İlerleme: %' + lesson.progress"></span>
-                                <button @click="openLesson(lesson)" class="bg-[#3c806d] text-white text-xs px-4 py-2 rounded-xl font-medium hover:bg-[#2b5e50] transition">Konuyu Çalış & Test Çöz</button>
+                                <span class="text-xs font-semibold text-slate-500" x-text="'Tamamlanma: %' + lesson.progress"></span>
+                                <button @click="openLesson(lesson)" class="bg-[#3c806d] text-white text-xs px-4 py-2 rounded-xl font-bold hover:bg-[#2b5e50] transition">Konuyu Aç & Test Çöz</button>
                             </div>
                         </div>
                     </div>
@@ -88,11 +96,11 @@
             </div>
         </div>
 
-        <!-- Sekme 2: Paketler / Fiyatlandırma -->
+        <!-- SEKME 2: PAKETLER -->
         <div x-show="activeTab === 'plans'" x-cloak>
-            <div class="text-center mb-10">
-                <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Hedefine Uygun Paketi Seç</h1>
-                <p class="text-slate-500">YKS ve okul sınavlarında başarıyı yakala.</p>
+            <div class="text-center mb-8">
+                <h1 class="text-2xl font-extrabold text-slate-900 mb-2">Hedefine Uygun Paketi Seç</h1>
+                <p class="text-xs text-slate-500">TYT ve AYT maratonunda tam destek.</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <template x-for="plan in plans" :key="plan.id">
@@ -111,140 +119,487 @@
                                 </template>
                             </ul>
                         </div>
-                        <button @click="subscribePlan(plan)" class="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold text-sm hover:bg-[#3c806d] transition">Hemen Başvur</button>
+                        <button @click="subscribePlan(plan)" class="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold text-sm hover:bg-[#3c806d] transition">Paketi Seç</button>
                     </div>
                 </template>
             </div>
         </div>
 
-        <!-- Sekme 3: Profil / İlerleme -->
+        <!-- SEKME 3: PROFİLİM -->
         <div x-show="activeTab === 'profile'" x-cloak>
             <h1 class="text-2xl font-bold text-slate-900 mb-6">Öğrenci Profilim</h1>
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
                 <div class="flex items-center space-x-4 mb-4">
-                    <div class="w-16 h-16 bg-[#c6efdc] text-[#27745f] rounded-full flex items-center justify-center text-2xl font-bold">AY</div>
+                    <div class="w-16 h-16 bg-[#c6efdc] text-[#27745f] rounded-full flex items-center justify-center text-2xl font-bold" x-text="student.name.substring(0,2).toUpperCase()"></div>
                     <div>
                         <h2 class="text-xl font-bold text-slate-900" x-text="student.name"></h2>
                         <p class="text-sm text-slate-500" x-text="student.grade + ' • ' + student.plan + ' Üye'"></p>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4 border-t pt-4">
-                    <div class="bg-slate-50 p-4 rounded-xl text-center">
-                        <span class="block text-2xl font-black text-[#fa9a79]" x-text="student.streak + ' gün'"></span>
-                        <span class="text-xs text-slate-500 font-medium">Günlük Seri 🔥</span>
+                <div class="grid grid-cols-3 gap-3 border-t pt-4">
+                    <div class="bg-slate-50 p-3 rounded-xl text-center">
+                        <span class="block text-xl font-black text-[#3c806d]" x-text="completedCount + ' / ' + lessons.length"></span>
+                        <span class="text-[11px] text-slate-500 font-medium">Biten Konu</span>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-xl text-center">
-                        <span class="block text-2xl font-black text-[#3c806d]" x-text="'%' + student.weekly_goal"></span>
-                        <span class="text-xs text-slate-500 font-medium">Haftalık Hedef 🎯</span>
+                    <div class="bg-slate-50 p-3 rounded-xl text-center">
+                        <span class="block text-xl font-black text-emerald-600" x-text="totalCorrect"></span>
+                        <span class="text-[11px] text-slate-500 font-medium">Toplam Doğru</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl text-center">
+                        <span class="block text-xl font-black text-[#fa9a79]" x-text="'%' + overallProgress"></span>
+                        <span class="text-[11px] text-slate-500 font-medium">Genel Başarı</span>
                     </div>
                 </div>
             </div>
         </div>
-
     </main>
 
-    <!-- YAPAY ZEKA DERS & OGM MATERYAL TEST MODALI -->
-    <div x-show="selectedLesson" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" x-cloak>
-        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-xl relative max-h-[90vh] overflow-y-auto">
-            <button @click="selectedLesson = null" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
-            <div class="flex items-center space-x-2 mb-2">
-                <span class="text-xs bg-[#eaf5ee] text-[#3c806d] px-2.5 py-1 rounded-md font-semibold" x-text="selectedLesson?.subject"></span>
-                <span class="text-xs text-slate-400" x-text="selectedLesson?.grade"></span>
-            </div>
-            <h2 class="text-xl font-bold text-slate-900 mb-3" x-text="selectedLesson?.title"></h2>
+    <!-- KONU ANLATIMI VE OGM / ÖSYM TEST MODALI -->
+    <div x-show="selectedLesson" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3" x-cloak>
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+            <button @click="closeModal()" class="sticky top-0 float-right bg-slate-100 hover:bg-slate-200 text-slate-700 w-8 h-8 rounded-full font-bold text-sm flex items-center justify-center">✕</button>
             
-            <!-- Konu Özeti -->
-            <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl mb-4 text-xs text-slate-700 space-y-2">
-                <p class="font-bold text-[#244d46]">🤖 Yapay Zeka Özel Konu Özeti:</p>
-                <p>Bu dersin ana hatları ve sınavda en çok sorulan kalıplar özetlendi. İyice okuyup kavradıktan sonra aşağıdaki OGM Materyal kaynaklı karma test sorularına geçebilirsin.</p>
+            <!-- Başlık Bilgisi -->
+            <div class="flex items-center space-x-2 mb-2">
+                <span class="text-xs bg-[#eaf5ee] text-[#3c806d] px-2.5 py-1 rounded-md font-bold" x-text="selectedLesson?.subject"></span>
+                <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md" x-text="selectedLesson?.examType"></span>
             </div>
+            <h2 class="text-2xl font-extrabold text-slate-900 mb-4" x-text="selectedLesson?.title"></h2>
 
-            <!-- OGM Materyal Karma Soru / Test Alanı -->
-            <div class="border border-slate-200 rounded-xl p-4 mb-4 bg-emerald-50/30">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold text-[#3c806d]">📝 OGM Materyal Karma Test Sorusu</span>
-                    <span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">ÖSYM Tarzı</span>
-                </div>
-                <p class="text-xs font-semibold text-slate-800 mb-3">"Yukarıdaki konu başlığıyla ilgili deneme sınavlarında ve OGM materyal testlerinde en sık çıkan bu soruyu nasıl çözersin?"</p>
+            <!-- Aşama Seçici Sekmeler (Konu Anlatımı / OGM Testi) -->
+            <div class="flex border-b border-slate-200 mb-4 gap-4">
+                <button @click="modalStep = 'notes'" :class="modalStep === 'notes' ? 'border-b-2 border-[#3c806d] text-[#3c806d] font-bold' : 'text-slate-500'" class="pb-2 text-sm transition">
+                    1. Detaylı Konu Anlatımı
+                </button>
+                <button @click="modalStep = 'quiz'" :class="modalStep === 'quiz' ? 'border-b-2 border-[#3c806d] text-[#3c806d] font-bold' : 'text-slate-500'" class="pb-2 text-sm transition">
+                    2. OGM & ÖSYM Karma Test (<span x-text="selectedLesson?.questions.length"></span> Soru)
+                </button>
+            </div>
+            
+            <!-- BÖLÜM 1: KONUYA ÖZEL DETAYLI ANLATIM -->
+            <div x-show="modalStep === 'notes'" class="space-y-4">
+                <div class="bg-[#f4f9f6] border border-[#d6ebe0] p-4 rounded-2xl text-sm text-slate-800 leading-relaxed" x-html="selectedLesson?.notes"></div>
                 
-                <div class="space-y-2">
-                    <template x-for="(opt, idx) in ['A) Temel tanımı doğrudan uygula', 'B) Formüldeki değişkenleri kontrol et', 'C) İstisnai durumlara dikkat et', 'D) Grafik üzerinden yorumla']">
-                        <label class="flex items-center gap-2 text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:border-[#3c806d]">
-                            <input type="radio" name="ogm_question" class="text-[#3c806d]">
-                            <span x-text="opt"></span>
-                        </label>
-                    </template>
+                <div class="bg-amber-50/70 border border-amber-200 p-4 rounded-2xl">
+                    <h4 class="text-xs font-extrabold text-amber-900 mb-1">💡 ÖSYM & YKS Sınav Tüyosu:</h4>
+                    <p class="text-xs text-amber-800 leading-relaxed" x-text="selectedLesson?.examTip"></p>
                 </div>
+
+                <button @click="modalStep = 'quiz'" class="w-full bg-[#244d46] text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-[#1a3833] transition shadow-md">
+                    Konuyu Anladım, OGM & ÖSYM Testine Geç →
+                </button>
             </div>
 
-            <button @click="completeLesson()" class="w-full bg-[#3c806d] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#2b5e50] transition">Testi Bitir ve Dersi Tamamla (%0 -> %100)</button>
+            <!-- BÖLÜM 2: GERÇEKÇİ ÇOKTAN SEÇMELİ TEST -->
+            <div x-show="modalStep === 'quiz'" class="space-y-5">
+                <template x-for="(q, qIndex) in selectedLesson?.questions" :key="qIndex">
+                    <div class="border border-slate-200 rounded-2xl p-4 bg-slate-50/50">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-extrabold text-[#3c806d]" x-text="'Soru ' + (qIndex + 1)"></span>
+                            <span class="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded" x-text="q.source"></span>
+                        </div>
+                        <p class="text-sm font-semibold text-slate-900 mb-3 leading-snug" x-text="q.text"></p>
+                        
+                        <div class="space-y-2">
+                            <template x-for="(opt, oIndex) in q.options" :key="oIndex">
+                                <button @click="selectAnswer(qIndex, oIndex)"
+                                        :disabled="quizSubmitted"
+                                        :class="getOptionClass(qIndex, oIndex, q.correct)"
+                                        class="w-full text-left text-xs p-3 rounded-xl border transition flex items-center justify-between">
+                                    <span x-text="opt"></span>
+                                    <span x-show="quizSubmitted && oIndex === q.correct" class="font-bold text-emerald-700">✓ Doğru</span>
+                                    <span x-show="quizSubmitted && userAnswers[qIndex] === oIndex && oIndex !== q.correct" class="font-bold text-red-600">✕ Yanlış</span>
+                                </button>
+                            </template>
+                        </div>
+
+                        <!-- Çözüm Açıklaması (Test bitince açılır) -->
+                        <div x-show="quizSubmitted" class="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-900">
+                            <span class="font-bold">Çözüm: </span><span x-text="q.explanation"></span>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Test Sonuç Özeti -->
+                <div x-show="quizSubmitted" class="p-4 rounded-2xl bg-[#eaf5ee] border border-[#3c806d] text-center">
+                    <p class="text-base font-extrabold text-[#244d46]" x-text="'Test Sonucun: ' + quizScore + ' Doğru / ' + (selectedLesson?.questions.length - quizScore) + ' Yanlış'"></p>
+                    <p class="text-xs text-slate-600 mt-1">Konu ilerlemen başarıyla güncellendi!</p>
+                </div>
+
+                <div class="flex gap-3">
+                    <button x-show="!quizSubmitted" @click="submitQuiz()" class="w-full bg-[#3c806d] text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-[#2b5e50] transition shadow-md">
+                        Testi Bitir ve Cevapları Kontrol Et
+                    </button>
+                    <button x-show="quizSubmitted" @click="closeModal()" class="w-full bg-slate-900 text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition">
+                        Kataloğa Dön
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Alt Navigasyon Çubuğu (Mobil Uyumlu) -->
+    <!-- ALT NAVİGASYON -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-3 px-6 flex justify-around items-center z-40" x-show="isLoggedIn" x-cloak>
-        <button @click="activeTab = 'catalog'" :class="activeTab === 'catalog' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-medium">
+        <button @click="activeTab = 'catalog'" :class="activeTab === 'catalog' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-bold">
             <span class="text-lg">📚</span>
-            <span>Dersler</span>
+            <span>Konular</span>
         </button>
-        <button @click="activeTab = 'plans'" :class="activeTab === 'plans' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-medium">
+        <button @click="activeTab = 'plans'" :class="activeTab === 'plans' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-bold">
             <span class="text-lg">⭐</span>
             <span>Paketler</span>
         </button>
-        <button @click="activeTab = 'profile'" :class="activeTab === 'profile' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-medium">
+        <button @click="activeTab = 'profile'" :class="activeTab === 'profile' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-bold">
             <span class="text-lg">👤</span>
             <span>Profilim</span>
         </button>
     </nav>
 
-    <!-- JavaScript Mantığı -->
     <script>
         function dersPlusApp() {
             return {
-                isLoggedIn: false, // Başlangıçta giriş ekranı açık
+                isLoggedIn: false,
+                userNameInput: '',
                 activeTab: 'catalog',
                 selectedSubject: 'Tümü',
                 selectedLesson: null,
-                subjects: ['Tümü', 'Matematik', 'Fen Bilimleri', 'Türkçe', 'Fizik'],
+                modalStep: 'notes',
+                userAnswers: {},
+                quizSubmitted: false,
+                quizScore: 0,
+                totalCorrect: 0,
+                subjects: ['Tümü', 'Matematik', 'Fizik', 'Kimya', 'Biyoloji', 'Türkçe'],
                 student: {
-                    name: "Ada Yılmaz",
-                    grade: "12. Sınıf / YKS",
-                    level: "Lise",
-                    plan: "Uzman",
-                    streak: 12,
-                    weekly_goal: 78
+                    name: "Öğrenci",
+                    grade: "12. Sınıf / YKS Sayısal",
+                    plan: "Uzman"
                 },
                 lessons: [
-                    { id: "math-fractions", title: "Kesirlerle İşlemler", subject: "Matematik", level: "İlkokul", grade: "5. Sınıf", type: "video", duration: "18 dk", progress: 0, tag: "Yeni" },
-                    { id: "science-cells", title: "Hücrenin Yapısı", subject: "Fen Bilimleri", level: "Ortaokul", grade: "7. Sınıf", type: "reading", duration: "12 dk", progress: 0, tag: "Popüler" },
-                    { id: "turkish-meaning", title: "Sözcükte Anlam", subject: "Türkçe", level: "İlkokul", grade: "6. Sınıf", type: "quiz", duration: "10 soru", progress: 0, tag: "Test" },
-                    { id: "physics-motion", title: "Kuvvet ve Hareket", subject: "Fizik", level: "Lise", grade: "9. Sınıf", type: "video", duration: "24 dk", progress: 0, tag: "TYT" },
-                    { id: "math-functions", title: "Fonksiyonlara Giriş", subject: "Matematik", level: "Lise", grade: "12. Sınıf", type: "quiz", duration: "15 soru", progress: 0, tag: "AYT" }
+                    {
+                        id: "math-fractions",
+                        title: "Rasyonel Sayılar ve Kesirler",
+                        subject: "Matematik",
+                        examType: "TYT Matematik",
+                        progress: 0,
+                        tag: "Temel Konu",
+                        notes: `
+                            <p class="font-bold text-base text-[#244d46] mb-2">📌 Kesirler ve Rasyonel Sayılar Nedir?</p>
+                            <p class="mb-2"><b>a</b> ve <b>b</b> birer tam sayı ve <b>b ≠ 0</b> olmak üzere <b>a/b</b> şeklinde yazılabilen sayılara rasyonel sayı denir. Burada <b>a</b> pay, <b>b</b> paydadır.</p>
+                            <ul class="list-disc pl-5 space-y-1.5 mb-2">
+                                <li><b>Basit Kesir:</b> Payı paydasından mutlak değerce küçük olan kesirlerdir (Örn: 3/5, -2/7).</li>
+                                <li><b>Bileşik Kesir:</b> Payı paydasından mutlak değerce büyük veya eşit olan kesirlerdir (Örn: 7/4, 5/5, -9/2).</li>
+                                <li><b>Tam Sayılı Kesir:</b> Bir tam sayı ve bir basit kesirden oluşur. Bileşik kesre çevrilirken tam kısım ile payda çarpılıp pay eklenir.</li>
+                                <li><b>Devirli Ondalık Sayılar:</b> (Sayının Tamamı - Devretmeyen Kısım) / (Virgülden sonra devreden kadar 9, devretmeyen kadar 0) formülüyle rasyonel sayıya çevrilir.</li>
+                            </ul>
+                            <p class="font-bold text-[#244d46]">⚠️ Tanımsızlık Kuralı:</p>
+                            <p>Paydayı 0 yapan değer ifadeyi <b>tanımsız</b> yapar. 0/0 ise <b>belirsizdir</b>.</p>
+                        `,
+                        examTip: "TYT Matematikte her yıl mutlaka 1 veya 2 soru gelir. Özellikle şekilli pasta/kap bölme sorularında tüm parçaların eşit büyüklükte olup olmadığına dikkat et; eşit değilse önce çizgilerle eş parçalara böl!",
+                        questions: [
+                            {
+                                source: "OGM Materyal / TYT Tarzı",
+                                text: "Bir sürahinin 2/5'i su ile doludur. Sürahiye 6 litre daha su eklendiğinde sürahinin 4/5'i doluyor. Buna göre sürahinin tamamı kaç litre su alır?",
+                                options: ["A) 10", "B) 12", "C) 15", "D) 20", "E) 25"],
+                                correct: 2,
+                                explanation: "Başlangıçta 2/5 dolu, son durumda 4/5 dolu. Aradaki fark: 4/5 - 2/5 = 2/5'lik kısım 6 litreye eşittir. 2 parçası 6 litre ise 1 parçası 3 litredir. Tamamı (5 parça) = 5 × 3 = 15 litredir."
+                            },
+                            {
+                                source: "ÖSYM Çıkmış Soru Benzeri",
+                                text: "(1 - 1/2) · (1 - 1/3) · (1 - 1/4) · ... · (1 - 1/20) işleminin sonucu kaçtır?",
+                                options: ["A) 1/20", "B) 1/19", "C) 19/20", "D) 1/10", "E) 2/19"],
+                                correct: 0,
+                                explanation: "Parantez içlerini yaparsak: (1/2) · (2/3) · (3/4) · ... · (19/20) olur. Pay ve paydalar çapraz sadeleştiğinde en baştaki pay (1) ve en sondaki payda (20) kalır. Sonuç: 1/20."
+                            },
+                            {
+                                source: "OGM Materyal Kazanım Testi",
+                                text: "x pozitif bir tam sayı olmak üzere (3x + 14) / x ifadesi bir tam sayı olduğuna göre, x'in alabileceği kaç farklı değer vardır?",
+                                options: ["A) 2", "B) 3", "C) 4", "D) 5", "E) 6"],
+                                correct: 2,
+                                explanation: "Kesri ayırırsak: (3x/x) + (14/x) = 3 + (14/x) olur. İfadenin tam sayı olması için x, 14'ü tam bölen pozitif tam sayılar olmalıdır. Bunlar: 1, 2, 7 ve 14 olmak üzere 4 tanedir."
+                            }
+                        ]
+                    },
+                    {
+                        id: "math-functions",
+                        title: "Fonksiyonlar ve Grafik Yorumlama",
+                        subject: "Matematik",
+                        examType: "TYT - AYT Matematik",
+                        progress: 0,
+                        tag: "YKS Banko",
+                        notes: `
+                            <p class="font-bold text-base text-[#244d46] mb-2">📌 Fonksiyon Olma Şartları</p>
+                            <p class="mb-2">A ve B boş olmayan iki küme olmak üzere; A kümesindeki <b>her</b> elemanı, B kümesindeki <b>yalnız bir</b> elemana eşleyen bağıntıya fonksiyon denir (f: A → B).</p>
+                            <ul class="list-disc pl-5 space-y-1.5 mb-2">
+                                <li><b>Tanım Kümesi (A):</b> Açıkta eleman kalmamalıdır.</li>
+                                <li><b>Düşey Doğru Testi:</b> Grafikte y eksenine paralel çizilen doğrular grafiği en fazla 1 noktada kesiyorsa o grafik fonksiyondur.</li>
+                                <li><b>Bire Bir Fonksiyon:</b> Tanım kümesindeki farklı elemanların görüntüleri de farklıdır. Yatay doğru testi ile anlaşılır.</li>
+                                <li><b>Bileşke Fonksiyon (fog)(x):</b> f(g(x)) demektir. İşleme en içteki fonksiyondan başlanır.</li>
+                                <li><b>Ters Fonksiyon f⁻¹(x):</b> f(a) = b ise f⁻¹(b) = a'dır. Doğrusal fonksiyonlarda f(x) = ax + b ise f⁻¹(x) = (x - b) / a olur.</li>
+                            </ul>
+                        `,
+                        examTip: "ÖSYM hem TYT'de hem AYT'de grafik üzerinden bileşke fonksiyon (fof)(a) ve ters fonksiyon değerlerini bulmayı çok sever. Grafik üzerinde y ekseninden x eksenine okurken f⁻¹ kullandığını unutma!",
+                        questions: [
+                            {
+                                source: "ÖSYM AYT Tarzı",
+                                text: "Gerçel sayılar kümesi üzerinde tanımlı f ve g fonksiyonları için f(x) = 2x + 3 ve (fog)(x) = 6x - 1 olduğuna göre g(2) değeri kaçtır?",
+                                options: ["A) 3", "B) 4", "C) 5", "D) 6", "E) 7"],
+                                correct: 1,
+                                explanation: "(fog)(x) = f(g(x)) = 2·g(x) + 3 = 6x - 1 olur. Buradan 2·g(x) = 6x - 4 => g(x) = 3x - 2 bulunur. x = 2 için g(2) = 3(2) - 2 = 4'tür."
+                            },
+                            {
+                                source: "OGM Materyal / 10-12. Sınıf",
+                                text: "f(2x - 1) = x² + 3x - 2 olduğuna göre f(5) kaçtır?",
+                                options: ["A) 14", "B) 16", "C) 18", "D) 20", "E) 22"],
+                                correct: 1,
+                                explanation: "İçeriyi 5 yapmak için 2x - 1 = 5 => 2x = 6 => x = 3 yazmalıyız. Sağ tarafta x yerine 3 koyarsak: 3² + 3(3) - 2 = 9 + 9 - 2 = 16 bulunur."
+                            }
+                        ]
+                    },
+                    {
+                        id: "math-logarithm",
+                        title: "Logaritma Özellikleri ve Denklemler",
+                        subject: "Matematik",
+                        examType: "AYT Matematik",
+                        progress: 0,
+                        tag: "AYT Banko",
+                        notes: `
+                            <p class="font-bold text-base text-[#244d46] mb-2">📌 Logaritma Fonksiyonu ve Tanım Aralığı</p>
+                            <p class="mb-2">a > 0, a ≠ 1 ve x > 0 olmak üzere <b>aʸ = x ⇔ y = logₐ(x)</b> şeklinde tanımlanır.</p>
+                            <ul class="list-disc pl-5 space-y-1.5 mb-2">
+                                <li><b>En Geniş Tanım Kümesi:</b> Taban > 0, Taban ≠ 1 ve Üst (iç kısım) > 0 olmalıdır.</li>
+                                <li><b>Çarpımın Logaritması:</b> logₐ(x · y) = logₐ(x) + logₐ(y)</li>
+                                <li><b>Bölümün Logaritması:</b> logₐ(x / y) = logₐ(x) - logₐ(y)</li>
+                                <li><b>Üssün Başa Düşmesi:</b> logₐ(xⁿ) = n · logₐ(x)</li>
+                                <li><b>Taban Değiştirme:</b> logₐ(b) = log꜀(b) / log꜀(a)</li>
+                            </ul>
+                        `,
+                        examTip: "AYT'de logaritma denklemi çözdükten sonra bulduğun x köklerini mutlaka en baştaki logaritmanın içine yazıp pozitif (>0) yapıyor mu diye kontrol et; negatif yapan kök çözüm kümesine alınmaz!",
+                        questions: [
+                            {
+                                source: "ÖSYM AYT Çıkmış Soru Tarzı",
+                                text: "log₂(x - 3) + log₂(x + 1) = 5 denklemini sağlayan x değeri kaçtır?",
+                                options: ["A) 4", "B) 5", "C) 6", "D) 7", "E) 8"],
+                                correct: 3,
+                                explanation: "Tabanlar aynı olduğu için içleri çarparız: log₂((x - 3)(x + 1)) = 5 => (x - 3)(x + 1) = 2⁵ = 32. x² - 2x - 3 = 32 => x² - 2x - 35 = 0 => (x - 7)(x + 5) = 0. x = 7 veya x = -5 gelir. x > 3 olması gerektiğinden cevap 7'dir."
+                            },
+                            {
+                                source: "OGM Materyal / AYT",
+                                text: "log₃(5) = a olduğuna göre log₁₅(45) ifadesinin a türünden eşiti nedir?",
+                                options: ["A) (a + 2) / (a + 1)", "B) (a + 1) / (a + 2)", "C) 2a / (a + 1)", "D) (2a + 1) / a", "E) a + 2"],
+                                correct: 0,
+                                explanation: "3 tabanında yazalım: log₃(45) / log₃(15) = log₃(9 · 5) / log₃(3 · 5) = (log₃9 + log₃5) / (log₃3 + log₃5) = (2 + a) / (1 + a) bulunur."
+                            }
+                        ]
+                    },
+                    {
+                        id: "physics-circular",
+                        title: "Düzgün Çembersel Hareket ve Açısal Momentum",
+                        subject: "Fizik",
+                        examType: "AYT Fizik",
+                        progress: 0,
+                        tag: "12. Sınıf / AYT",
+                        notes: `
+                            <p class="font-bold text-base text-[#244d46] mb-2">📌 Çembersel Hareket Temel Kavramları</p>
+                            <p class="mb-2">Sabit bir eksen etrafında eşit zaman aralıklarında eşit yaylar alan cismin hareketidir. Sürat sabit kalsa da <b>hız vektörünün yönü sürekli değiştiği için ivmeli bir harekettir.</b></p>
+                            <ul class="list-disc pl-5 space-y-1.5 mb-2">
+                                <li><b>Çizgisel Hız (V):</b> V = 2πr / T = ω · r</li>
+                                <li><b>Açısal Hız (ω):</b> ω = 2π / T = 2πf (Yönü sağ el kuralı ile bulunur).</li>
+                                <li><b>Merkezcil İvme (a):</b> a = V² / r = ω² · r (Daima çemberin merkezine doğrudur).</li>
+                                <li><b>Açısal Momentum (L):</b> L = I · ω = m · V · r (Dış tork sıfırsa açısal momentum korunur!).</li>
+                            </ul>
+                        `,
+                        examTip: "Serbest cisim diyagramında 'Merkezkaç Kuvveti' diye bir kuvvet ASLA gösterilmez! Merkeze doğru olan net kuvvete Merkezcil Kuvvet denir.",
+                        questions: [
+                            {
+                                source: "ÖSYM AYT Fizik Tarzı",
+                                text: "Buz pistinde kendi ekseni etrafında dönen bir patenci kollarını vücuduna doğru kapattığında; I. Eylemsizlik momenti, II. Açısal hızı, III. Açısal momentumu niceliklerinden hangileri artar?",
+                                options: ["A) Yalnız I", "B) Yalnız II", "C) I ve II", "D) II ve III", "E) I, II ve III"],
+                                correct: 1,
+                                explanation: "Dışarıdan bir tork etki etmediği için Açısal Momentum (L) değişmez (korunur). Kollarını kapatınca yarıçap azalır, bu yüzden Eylemsizlik Momenti (I = mr²) azalır. L = I · ω eşitliğinden I azaldığı için Açısal Hız (ω) artar. Cevap Yalnız II."
+                            },
+                            {
+                                source: "OGM Materyal / 12. Sınıf Fizik",
+                                text: "Yatay sürtünmesiz bir masada ipin ucuna bağlı m kütleli cisim sabit V süratiyle düzgün çembersel hareket yapmaktadır. İpin uzunluğu yarıya indirilip aynı V süratiyle döndürülürse ipteki gerilme kuvveti kaç katına çıkar?",
+                                options: ["A) 1/2", "B) 1", "C) 2", "D) 4", "E) 8"],
+                                correct: 2,
+                                explanation: "İp gerilmesi merkezcil kuvvete eşittir: T = m · V² / r. Kütle (m) ve sürat (V) sabitken yarıçap (r) yarıya düşerse, ipteki gerilme kuvveti 2 katına çıkar."
+                            }
+                        ]
+                    },
+                    {
+                        id: "chem-redox",
+                        title: "Kimya ve Elektrik: Redoks Tepkimeleri",
+                        subject: "Kimya",
+                        examType: "AYT Kimya",
+                        progress: 0,
+                        tag: "12. Sınıf / AYT",
+                        notes: `
+                            <p class="font-bold text-base text-[#244d46] mb-2">📌 İndirgenme - Yükseltgenme (Redoks) Kuralları</p>
+                            <p class="mb-2">Elektron alışverişi ile gerçekleşen tepkimelere redoks tepkimeleri denir.</p>
+                            <ul class="list-disc pl-5 space-y-1.5 mb-2">
+                                <li><b>Yükseltgenme:</b> Elektron verme olayıdır. Yükseltgenme basamağı artar. Elektron veren madde <b>indirgen</b> özellik gösterir.</li>
+                                <li><b>İndirgenme:</b> Elektron alma olayıdır. Yükseltgenme basamağı azalır. Elektron alan madde <b>yükseltgen</b> özellik gösterir.</li>
+                                <li><b>Serbest Elementler:</b> Doğada tek başına bulunan elementlerin (Fe, O₂, Cl₂, Na) yükseltgenme basamağı <b>0</b>'dır.</li>
+                                <li><b>Hidrojen ve Oksijen:</b> Hidrojen ametallerle +1, metallerle -1 alır. Oksijen bileşiklerinde genellikle -2 alır.</li>
+                            </ul>
+                        `,
+                        examTip: "Bir tepkimede tek başına duran bir element (örneğin H₂, O₂ veya Zn) ürünlerde bir bileşiğin içine girmişse o tepkime %100 redoks tepkimesidir!",
+                        questions: [
+                            {
+                                source: "ÖSYM AYT Kimya Tarzı",
+                                text: "Zn(k) + 2HCl(suda) → ZnCl₂(suda) + H₂(g) tepkimesi ile ilgili aşağıdakilerden hangisi yanlıştır?",
+                                options: ["A) Redoks tepkimesidir", "B) Zn atomu yükseltgenmiştir", "C) H⁺ iyonu indirgenmiştir", "D) Zn indirgen özellik gösterir", "E) Cl⁻ iyonu elektron almıştır"],
+                                correct: 4,
+                                explanation: "Tepkimede Zn (0'dan +2'ye) yükseltgenmiş, H (+1'den 0'a) indirgenmiştir. Cl⁻ iyonunun yükseltgenme basamağı her iki tarafta da -1'dir, elektron alışverişine katılmamıştır."
+                            }
+                        ]
+                    },
+                    {
+                        id: "bio-cells",
+                        title: "Hücrenin Yapısı ve Organeller",
+                        subject: "Biyoloji",
+                        examType: "TYT Biyoloji",
+                        progress: 0,
+                        tag: "TYT Banko",
+                        notes: `
+                            <p class="font-bold text-base text-[#244d46] mb-2">📌 Prokaryot ve Ökaryot Hücre Farkı</p>
+                            <p class="mb-2"><b>Prokaryot Hücreler (Bakteri ve Arkeler):</b> Zarla çevrili çekirdek ve zarlı organelleri yoktur. Sadece <b>ribozom</b> bulundururlar.</p>
+                            <ul class="list-disc pl-5 space-y-1.5 mb-2">
+                                <li><b>Ribozom:</b> Zarsızdır. Tüm canlı hücrelerde ortak olarak bulunur. Protein sentezi yapar.</li>
+                                <li><b>Mitokondri:</b> Çift zarlıdır. Oksijenli solunum ile ATP üretir. Kendine ait DNA, RNA ve ribozomu vardır.</li>
+                                <li><b>Kloroplast:</b> Çift zarlıdır. Fotosentez ile ışık enerjisini kimyasal bağ enerjisine çevirir.</li>
+                                <li><b>Lizozom:</b> Tek zarlıdır. Hücre içi sindirim yapar. Gelişmiş bitki hücrelerinde bulunmaz.</li>
+                                <li><b>Sentrozom:</b> Zarsızdır. Hücre bölünmesinde iğ ipliklerini oluşturur. Olgun alyuvar, sinir hücresi ve gelişmiş bitkilerde yoktur.</li>
+                            </ul>
+                        `,
+                        examTip: "ÖSYM'nin en sevdiği tuzak: Mitokondri ve Kloroplast içinde kendi DNA'sı olsa bile bölünmeleri çekirdek DNA'sının kontrolünde gerçekleşir!",
+                        questions: [
+                            {
+                                source: "ÖSYM TYT Biyoloji Tarzı",
+                                text: "Aşağıdaki organellerden hangisi hem prokaryot hem de ökaryot yapılı tüm canlı hücrelerde ortak olarak bulunur?",
+                                options: ["A) Mitokondri", "B) Golgi Aygıtı", "C) Ribozom", "D) Endoplazmik Retikulum", "E) Lizozom"],
+                                correct: 2,
+                                explanation: "Ribozom zarsız bir organeldir ve protein sentezi tüm canlıların ortak özelliği olduğu için bakteri, arke, bitki ve hayvanların tamamında bulunur."
+                            },
+                            {
+                                source: "OGM Materyal / 9. Sınıf Biyoloji",
+                                text: "Gelişmiş yapılı bir bitki hücresinde aşağıdaki organellerden hangisi bulunmaz?",
+                                options: ["A) Kloroplast", "B) Merkezi Koful", "C) Mitokondri", "D) Lizozom", "E) Peroksizom"],
+                                correct: 3,
+                                explanation: "Gelişmiş bitki hücrelerinde lizozom ve sentrozom organelleri bulunmaz; hücre içi sindirim fitolizozom benzeri yapılarla sağlanır."
+                            }
+                        ]
+                    },
+                    {
+                        id: "turkish-meaning",
+                        title: "Sözcükte Anlam ve Çok Anlamlılık",
+                        subject: "Türkçe",
+                        examType: "TYT Türkçe",
+                        progress: 0,
+                        tag: "Her Yıl 3-4 Soru",
+                        notes: `
+                            <p class="font-bold text-base text-[#244d46] mb-2">📌 Sözcükte Anlam Boyutları</p>
+                            <p class="mb-2">Bir sözcüğün anlamı tek başına değil, <b>kullanıldığı cümleye göre</b> belirlenir.</p>
+                            <ul class="list-disc pl-5 space-y-1.5 mb-2">
+                                <li><b>Gerçek (Temel) Anlam:</b> Sözcüğün akla ilk gelen sözlük anlamıdır.</li>
+                                <li><b>Mecaz Anlam:</b> Sözcüğün gerçek anlamından tamamen uzaklaşarak kazandığı yeni anlamdır (Örn: "Keskin bakışlarıyla herkesi süzdü").</li>
+                                <li><b>Terim Anlam:</b> Bilim, sanat, spor veya meslek dalıyla ilgili özel kavramlardır (Örn: "Üçgenin iç açıları", "Perde", "Penaltı").</li>
+                                <li><b>Dolaylama:</b> Tek sözcükle anlatılabilecek bir kavramı birden fazla sözcükle anlatmaktır (Örn: "File bekçisi" = Kaleci, "Kara elmas" = Kömür).</li>
+                            </ul>
+                        `,
+                        examTip: "TYT Türkçe sorularında altı çizili sözcüğün anlamını bulurken mutlaka cümlenin tamamını oku; sadece altı çizili kelimeye bakmak çeldiriciye düşürür.",
+                        questions: [
+                            {
+                                source: "ÖSYM TYT Türkçe Tarzı",
+                                text: "'Bırakmak' sözcüğü aşağıdaki cümlelerin hangisinde 'ertelemek' anlamında kullanılmıştır?",
+                                options: [
+                                    "A) Elindeki kitapları masanın üzerine yavaşça bıraktı.",
+                                    "B) Köydeki tarlaların hepsini büyük oğluna bırakmış.",
+                                    "C) Bu yoğunlukta toplantıyı haftaya bırakmak en doğrusu olacak.",
+                                    "D) Yağmur dinince şemsiyesini kapının yanına bıraktı.",
+                                    "E) Eski alışkanlıklarını nihayet tamamen bıraktı."
+                                ],
+                                correct: 2,
+                                explanation: "C seçeneğinde 'toplantıyı haftaya bırakmak' ifadesi, toplantıyı ileri bir tarihe ertelemek anlamında kullanılmıştır."
+                            }
+                        ]
+                    }
                 ],
                 plans: [
-                    { id: "baslangic", name: "Başlangıç", price: 100, period: "aylık", features: ["Temel ders içerikleri", "Aylık mini testler", "İlerleme özeti"] },
-                    { id: "gelisen", name: "Gelişen", price: 200, period: "aylık", features: ["Tüm ders içerikleri", "Sınırsız test çözümü", "Haftalık çalışma planı"] },
-                    { id: "uzman", name: "Uzman", price: 350, period: "aylık", features: ["Gelişen paketteki her şey", "Yıllık başarı takibi", "TYT + AYT kampı"] }
+                    { id: "baslangic", name: "Başlangıç", price: 100, period: "aylık", features: ["Temel konu özetleri", "Aylık mini testler", "İlerleme özeti"] },
+                    { id: "gelisen", name: "Gelişen", price: 200, period: "aylık", features: ["Tüm YKS konu anlatımları", "OGM Materyal soru havuzu", "Haftalık çalışma planı"] },
+                    { id: "uzman", name: "Uzman", price: 350, period: "aylık", features: ["Gelişen paketteki her şey", "Çıkmış ÖSYM soru analizleri", "TYT + AYT tam kampı"] }
                 ],
                 get filteredLessons() {
                     if (this.selectedSubject === 'Tümü') return this.lessons;
                     return this.lessons.filter(l => l.subject === this.selectedSubject);
                 },
+                get completedCount() {
+                    return this.lessons.filter(l => l.progress === 100).length;
+                },
+                get overallProgress() {
+                    const sum = this.lessons.reduce((acc, l) => acc + l.progress, 0);
+                    return Math.round(sum / this.lessons.length);
+                },
                 loginWith(method) {
+                    if (this.userNameInput.trim() !== '') {
+                        this.student.name = this.userNameInput.trim();
+                    } else {
+                        this.student.name = method === 'Google' ? 'Google Kullanıcısı' : 'YKS Öğrencisi';
+                    }
                     this.isLoggedIn = true;
                 },
                 openLesson(lesson) {
                     this.selectedLesson = lesson;
+                    this.modalStep = 'notes';
+                    this.userAnswers = {};
+                    this.quizSubmitted = false;
+                    this.quizScore = 0;
                 },
-                completeLesson() {
-                    if (this.selectedLesson) {
-                        this.selectedLesson.progress = 100; // Notlar okunup test çözülünce %100 oluyor
-                    }
-                    alert("Tebrikler! Konu notları okundu, OGM materyal testi çözüldü ve ilerlemen %100 olarak kaydedildi.");
+                closeModal() {
                     this.selectedLesson = null;
                 },
+                selectAnswer(qIndex, oIndex) {
+                    if (!this.quizSubmitted) {
+                        this.userAnswers[qIndex] = oIndex;
+                    }
+                },
+                getOptionClass(qIndex, oIndex, correctIndex) {
+                    if (!this.quizSubmitted) {
+                        return this.userAnswers[qIndex] === oIndex 
+                            ? 'border-[#3c806d] bg-[#eaf5ee] font-bold text-[#244d46]' 
+                            : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700';
+                    }
+                    if (oIndex === correctIndex) {
+                        return 'border-emerald-500 bg-emerald-50 font-bold text-emerald-900';
+                    }
+                    if (this.userAnswers[qIndex] === oIndex && oIndex !== correctIndex) {
+                        return 'border-red-400 bg-red-50 text-red-900';
+                    }
+                    return 'border-slate-200 bg-white opacity-60';
+                },
+                submitQuiz() {
+                    if (!this.selectedLesson) return;
+                    const questions = this.selectedLesson.questions;
+                    if (Object.keys(this.userAnswers).length < questions.length) {
+                        alert("Lütfen testi bitirmeden önce tüm soruları işaretle!");
+                        return;
+                    }
+                    let score = 0;
+                    questions.forEach((q, idx) => {
+                        if (this.userAnswers[idx] === q.correct) {
+                            score++;
+                        }
+                    });
+                    this.quizScore = score;
+                    this.totalCorrect += score;
+                    this.quizSubmitted = true;
+                    
+                    // Doğru oranına göre ilerleme yüzdesi hesapla
+                    const percent = Math.round((score / questions.length) * 100);
+                    this.selectedLesson.progress = Math.max(this.selectedLesson.progress, percent);
+                },
                 subscribePlan(plan) {
-                    alert(plan.name + " paketini seçtiğiniz için teşekkürler! Üyeliğiniz aktif edildi.");
+                    alert(plan.name + " paketi seçildi! İyi çalışmalar.");
                 }
             }
         }
