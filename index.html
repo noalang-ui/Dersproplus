@@ -10,8 +10,27 @@
 </head>
 <body class="bg-[#f7f8f5] text-[#202c32] font-sans antialiased" x-data="dersPlusApp()">
 
+    <!-- 1. GİRİŞ EKRANI (Eğer kullanıcı giriş yapmadıysa görünür) -->
+    <div x-show="!isLoggedIn" class="fixed inset-0 bg-[#244d46] z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-[#c6efdc] text-[#27745f] rounded-2xl text-3xl font-black mb-4">DP</div>
+            <h1 class="text-2xl font-extrabold text-slate-900 mb-2">DersPlus'a Hoş Geldin</h1>
+            <p class="text-xs text-slate-500 mb-8">YKS hazırlık sürecinde yapay zeka destekli akıllı öğrenme asistanın.</p>
+            
+            <div class="space-y-3">
+                <button @click="loginWith('Google')" class="w-full flex items-center justify-center gap-3 border border-slate-200 py-3 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition">
+                    <span class="text-lg">🌐</span> Google ile Oturum Aç
+                </button>
+                <button @click="loginWith('E-posta')" class="w-full flex items-center justify-center gap-3 bg-[#3c806d] text-white py-3 rounded-2xl text-sm font-bold hover:bg-[#2b5e50] transition">
+                    <span class="text-lg">✉️</span> E-posta ile Devam Et
+                </button>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-6">Devam ederek DersPlus kullanım koşullarını kabul etmiş olursun.</p>
+        </div>
+    </div>
+
     <!-- Üst Menü -->
-    <header class="bg-[#244d46] text-white shadow-md sticky top-0 z-50">
+    <header class="bg-[#244d46] text-white shadow-md sticky top-0 z-40" x-show="isLoggedIn" x-cloak>
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2">
                 <span class="text-2xl font-black tracking-tight">Ders<span class="text-[#fa9a79]">Plus</span></span>
@@ -23,7 +42,7 @@
     </header>
 
     <!-- Ana İçerik Alanı -->
-    <main class="max-w-6xl mx-auto px-4 py-6 pb-24">
+    <main class="max-w-6xl mx-auto px-4 py-6 pb-24" x-show="isLoggedIn" x-cloak>
         
         <!-- Sekme 1: Katalog / Dersler -->
         <div x-show="activeTab === 'catalog'">
@@ -57,11 +76,11 @@
                         </div>
                         <div>
                             <div class="w-full bg-slate-100 rounded-full h-2 mb-3">
-                                <div class="bg-[#3c806d] h-2 rounded-full" :style="'width: ' + lesson.progress + '%'"></div>
+                                <div class="bg-[#3c806d] h-2 rounded-full transition-all duration-500" :style="'width: ' + lesson.progress + '%'"></div>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-xs text-slate-500" x-text="'İlerleme: %' + lesson.progress"></span>
-                                <button @click="startLesson(lesson)" class="bg-[#3c806d] text-white text-xs px-4 py-2 rounded-xl font-medium hover:bg-[#2b5e50] transition">İzle / Çöz</button>
+                                <button @click="openLesson(lesson)" class="bg-[#3c806d] text-white text-xs px-4 py-2 rounded-xl font-medium hover:bg-[#2b5e50] transition">Konuyu Çalış & Test Çöz</button>
                             </div>
                         </div>
                     </div>
@@ -124,8 +143,46 @@
 
     </main>
 
+    <!-- YAPAY ZEKA DERS & OGM MATERYAL TEST MODALI -->
+    <div x-show="selectedLesson" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" x-cloak>
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-xl relative max-h-[90vh] overflow-y-auto">
+            <button @click="selectedLesson = null" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+            <div class="flex items-center space-x-2 mb-2">
+                <span class="text-xs bg-[#eaf5ee] text-[#3c806d] px-2.5 py-1 rounded-md font-semibold" x-text="selectedLesson?.subject"></span>
+                <span class="text-xs text-slate-400" x-text="selectedLesson?.grade"></span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-3" x-text="selectedLesson?.title"></h2>
+            
+            <!-- Konu Özeti -->
+            <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl mb-4 text-xs text-slate-700 space-y-2">
+                <p class="font-bold text-[#244d46]">🤖 Yapay Zeka Özel Konu Özeti:</p>
+                <p>Bu dersin ana hatları ve sınavda en çok sorulan kalıplar özetlendi. İyice okuyup kavradıktan sonra aşağıdaki OGM Materyal kaynaklı karma test sorularına geçebilirsin.</p>
+            </div>
+
+            <!-- OGM Materyal Karma Soru / Test Alanı -->
+            <div class="border border-slate-200 rounded-xl p-4 mb-4 bg-emerald-50/30">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-[#3c806d]">📝 OGM Materyal Karma Test Sorusu</span>
+                    <span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">ÖSYM Tarzı</span>
+                </div>
+                <p class="text-xs font-semibold text-slate-800 mb-3">"Yukarıdaki konu başlığıyla ilgili deneme sınavlarında ve OGM materyal testlerinde en sık çıkan bu soruyu nasıl çözersin?"</p>
+                
+                <div class="space-y-2">
+                    <template x-for="(opt, idx) in ['A) Temel tanımı doğrudan uygula', 'B) Formüldeki değişkenleri kontrol et', 'C) İstisnai durumlara dikkat et', 'D) Grafik üzerinden yorumla']">
+                        <label class="flex items-center gap-2 text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:border-[#3c806d]">
+                            <input type="radio" name="ogm_question" class="text-[#3c806d]">
+                            <span x-text="opt"></span>
+                        </label>
+                    </template>
+                </div>
+            </div>
+
+            <button @click="completeLesson()" class="w-full bg-[#3c806d] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#2b5e50] transition">Testi Bitir ve Dersi Tamamla (%0 -> %100)</button>
+        </div>
+    </div>
+
     <!-- Alt Navigasyon Çubuğu (Mobil Uyumlu) -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-3 px-6 flex justify-around items-center z-50">
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-3 px-6 flex justify-around items-center z-40" x-show="isLoggedIn" x-cloak>
         <button @click="activeTab = 'catalog'" :class="activeTab === 'catalog' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-medium">
             <span class="text-lg">📚</span>
             <span>Dersler</span>
@@ -144,8 +201,10 @@
     <script>
         function dersPlusApp() {
             return {
+                isLoggedIn: false, // Başlangıçta giriş ekranı açık
                 activeTab: 'catalog',
                 selectedSubject: 'Tümü',
+                selectedLesson: null,
                 subjects: ['Tümü', 'Matematik', 'Fen Bilimleri', 'Türkçe', 'Fizik'],
                 student: {
                     name: "Ada Yılmaz",
@@ -156,11 +215,11 @@
                     weekly_goal: 78
                 },
                 lessons: [
-                    { id: "math-fractions", title: "Kesirlerle İşlemler", subject: "Matematik", level: "İlkokul", grade: "5. Sınıf", type: "video", duration: "18 dk", progress: 72, tag: "Yeni" },
-                    { id: "science-cells", title: "Hücrenin Yapısı", subject: "Fen Bilimleri", level: "Ortaokul", grade: "7. Sınıf", type: "reading", duration: "12 dk", progress: 34, tag: "Popüler" },
+                    { id: "math-fractions", title: "Kesirlerle İşlemler", subject: "Matematik", level: "İlkokul", grade: "5. Sınıf", type: "video", duration: "18 dk", progress: 0, tag: "Yeni" },
+                    { id: "science-cells", title: "Hücrenin Yapısı", subject: "Fen Bilimleri", level: "Ortaokul", grade: "7. Sınıf", type: "reading", duration: "12 dk", progress: 0, tag: "Popüler" },
                     { id: "turkish-meaning", title: "Sözcükte Anlam", subject: "Türkçe", level: "İlkokul", grade: "6. Sınıf", type: "quiz", duration: "10 soru", progress: 0, tag: "Test" },
-                    { id: "physics-motion", title: "Kuvvet ve Hareket", subject: "Fizik", level: "Lise", grade: "9. Sınıf", type: "video", duration: "24 dk", progress: 58, tag: "TYT" },
-                    { id: "math-functions", title: "Fonksiyonlara Giriş", subject: "Matematik", level: "Lise", grade: "12. Sınıf", type: "quiz", duration: "15 soru", progress: 18, tag: "AYT" }
+                    { id: "physics-motion", title: "Kuvvet ve Hareket", subject: "Fizik", level: "Lise", grade: "9. Sınıf", type: "video", duration: "24 dk", progress: 0, tag: "TYT" },
+                    { id: "math-functions", title: "Fonksiyonlara Giriş", subject: "Matematik", level: "Lise", grade: "12. Sınıf", type: "quiz", duration: "15 soru", progress: 0, tag: "AYT" }
                 ],
                 plans: [
                     { id: "baslangic", name: "Başlangıç", price: 100, period: "aylık", features: ["Temel ders içerikleri", "Aylık mini testler", "İlerleme özeti"] },
@@ -171,12 +230,21 @@
                     if (this.selectedSubject === 'Tümü') return this.lessons;
                     return this.lessons.filter(l => l.subject === this.selectedSubject);
                 },
-                startLesson(lesson) {
-                    alert(lesson.title + " dersi açılıyor!");
-                    lesson.progress = Math.min(100, lesson.progress + 15);
+                loginWith(method) {
+                    this.isLoggedIn = true;
+                },
+                openLesson(lesson) {
+                    this.selectedLesson = lesson;
+                },
+                completeLesson() {
+                    if (this.selectedLesson) {
+                        this.selectedLesson.progress = 100; // Notlar okunup test çözülünce %100 oluyor
+                    }
+                    alert("Tebrikler! Konu notları okundu, OGM materyal testi çözüldü ve ilerlemen %100 olarak kaydedildi.");
+                    this.selectedLesson = null;
                 },
                 subscribePlan(plan) {
-                    alert(plan.name + " paketini seçtiğiniz için teşekkürler!");
+                    alert(plan.name + " paketini seçtiğiniz için teşekkürler! Üyeliğiniz aktif edildi.");
                 }
             }
         }
