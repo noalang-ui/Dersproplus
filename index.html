@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Ekranı</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #giris-ekrani {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 320px;
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background: #2c2c2c;
+            color: white;
+        }
+        button {
+            width: 96%;
+            padding: 10px;
+            background: #4caf50;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #hata-mesaji {
+            color: #ff5252;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        #ana-icerik {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- GİRİŞ PROMPT ALANI -->
+    <div id="giris-ekrani">
+        <h2>Hoş Geldin</h2>
+        <p>Devam etmek için giriş bilgilerini gir:</p>
+        <input type="text" id="kullanici-adi" placeholder="Kullanıcı Adı" />
+        <input type="password" id="sifre" placeholder="Şifre" />
+        <button onclick="girisKontrol()">Giriş Yap</button>
+        <div id="hata-mesaji"></div>
+    </div>
+
+    <!-- SİTE İÇİ DİĞER HER ŞEYİN YÜKLENECEĞİ ALAN -->
+    <div id="ana-icerik"></div>
+
+    <!-- Tüm site verileri ve içerik oluşturucu -->
+    <script src="veriler.js"></script>
+
+    <!-- Giriş Prompt Mantığı -->
+    <script>
+        function girisKontrol() {
+            const kadi = document.getElementById("kullanici-adi").value.trim();
+            const sifre = document.getElementById("sifre").value.trim();
+            const hata = document.getElementById("hata-mesaji");
+
+            // Basit giriş kontrolü (İstediğin gibi değiştirebilirsin)
+            if (kadi === "admin" && sifre === "1234") {
+                document.getElementById("giris-ekrani").style.display = "none";
+                const anaIcerik = document.getElementById("ana-icerik");
+                anaIcerik.style.display = "block";
+                
+                // veriler.js içindeki fonksiyonu tetikleyip siteyi kuruyoruz
+                siteyiBaslat(kadi);
+            } else {
+                hata.textContent = "Hatalı kullanıcı adı veya şifre! (İpucu: admin / 1234)";
+            }
+        }
+    </script>
+</body>
+</html>
