@@ -3,777 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DersProPlus - Lise & YKS Akıllı Eğitim Platformu</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- Firebase SDK (Gerçek Google OAuth & Auth Entegrasyonu İçin Hazır Altyapı) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-    <!-- 140 Konu Başlıklı Müfredat & Soru Havuzu -->
-    <script src="veriler.js"></script>
+    <title>Giriş Ekranı</title>
     <style>
-        [x-cloak] { display: none !important; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #giris-ekrani {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 320px;
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background: #2c2c2c;
+            color: white;
+        }
+        button {
+            width: 96%;
+            padding: 10px;
+            background: #4caf50;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #hata-mesaji {
+            color: #ff5252;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        #ana-icerik {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
-<body class="bg-[#f7f8f5] text-[#202c32] font-sans antialiased" x-data="dersProPlusApp()">
+<body>
 
-    <!-- ========================================================= -->
-    <!-- 1. MODERN GİRİŞ & KAYIT EKRANI (CHATGPT / GOOGLE STANDARTI) -->
-    <!-- ========================================================= -->
-    <div x-show="!isLoggedIn" class="fixed inset-0 bg-gradient-to-br from-[#16312c] via-[#1d3f39] to-[#244d46] z-50 flex items-center justify-center p-4 overflow-y-auto">
-        
-        <!-- ADIM 1: KARŞILAMA EKRANI (KAYDOL & GİRİŞ YAP BUTONLARI) -->
-        <div x-show="authStep === 'welcome'" x-transition class="bg-white rounded-3xl max-w-md w-full p-8 sm:p-10 shadow-2xl text-center">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-[#c6efdc] text-[#244d46] rounded-2xl text-3xl font-black mb-5 shadow-inner">DP+</div>
-            <h1 class="text-3xl font-black tracking-tight text-slate-900 mb-2">DersPro<span class="text-[#fa9a79]">Plus</span></h1>
-            <p class="text-sm text-slate-500 mb-8 leading-relaxed">9, 10, 11, 12. Sınıf ve YKS (TYT-AYT) için AI destekli konu anlatımı ve OGM Materyal & ÖSYM soru platformu.</p>
-            
-            <div class="space-y-3">
-                <button @click="authStep = 'register_options'" class="w-full bg-[#244d46] hover:bg-[#1a3833] text-white py-3.5 px-5 rounded-2xl text-sm font-bold transition shadow-lg shadow-[#244d46]/20">
-                    Kaydol
-                </button>
-                <button @click="authStep = 'login_options'" class="w-full bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 py-3.5 px-5 rounded-2xl text-sm font-bold transition">
-                    Giriş Yap
-                </button>
-            </div>
-
-            <div class="mt-8 pt-5 border-t border-slate-100 flex items-center justify-center gap-4 text-[11px] text-slate-400">
-                <span>140 Müfredat Konusu</span>
-                <span>•</span>
-                <span>2.800+ Soru</span>
-                <span>•</span>
-                <span>AI Özetler</span>
-            </div>
-        </div>
-
-        <!-- ADIM 2A: KAYDOL SEÇENEKLERİ (GOOGLE İLE KAYDOL / E-POSTA İLE KAYDOL) -->
-        <div x-show="authStep === 'register_options'" x-transition class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
-            <button @click="authStep = 'welcome'" class="absolute top-6 left-6 text-slate-400 hover:text-slate-700 font-bold text-xs flex items-center gap-1">← Geri</button>
-            
-            <div class="text-center mt-4 mb-6">
-                <h2 class="text-2xl font-black text-slate-900">Hesabını Oluştur</h2>
-                <p class="text-xs text-slate-500 mt-1">Öğrenme yolculuğuna başlamak için bir yöntem seç.</p>
-            </div>
-
-            <div class="space-y-3.5">
-                <!-- Google ile Kaydol (ChatGPT tarzı gerçekçi Google OAuth Popup / Hesap Seçici tetikler) -->
-                <button @click="triggerGoogleOAuth('register')" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-300 hover:bg-slate-50 py-3.5 px-4 rounded-2xl text-sm font-bold text-slate-700 transition shadow-sm">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"/></svg>
-                    Google ile Kaydol
-                </button>
-
-                <div class="relative flex py-2 items-center">
-                    <div class="flex-grow border-t border-slate-200"></div>
-                    <span class="flex-shrink mx-3 text-[11px] font-bold text-slate-400 uppercase">veya</span>
-                    <div class="flex-grow border-t border-slate-200"></div>
-                </div>
-
-                <!-- E-posta ile Kaydol -->
-                <button @click="authStep = 'email_register'" class="w-full flex items-center justify-center gap-2 bg-[#f4f9f6] hover:bg-[#e4f2eb] text-[#244d46] border border-[#cde5d8] py-3.5 px-4 rounded-2xl text-sm font-bold transition">
-                    <span>✉️</span> E-posta ile Kaydol
-                </button>
-            </div>
-
-            <p class="text-xs text-center text-slate-500 mt-6">
-                Zaten hesabın var mı? <button @click="authStep = 'login_options'" class="text-[#3c806d] font-bold hover:underline">Giriş Yap</button>
-            </p>
-        </div>
-
-        <!-- ADIM 2B: GİRİŞ YAP SEÇENEKLERİ -->
-        <div x-show="authStep === 'login_options'" x-transition class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
-            <button @click="authStep = 'welcome'" class="absolute top-6 left-6 text-slate-400 hover:text-slate-700 font-bold text-xs flex items-center gap-1">← Geri</button>
-            
-            <div class="text-center mt-4 mb-6">
-                <h2 class="text-2xl font-black text-slate-900">Tekrar Hoş Geldin</h2>
-                <p class="text-xs text-slate-500 mt-1">Kaldığın yerden devam etmek için giriş yap.</p>
-            </div>
-
-            <div class="space-y-3.5">
-                <button @click="triggerGoogleOAuth('login')" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-300 hover:bg-slate-50 py-3.5 px-4 rounded-2xl text-sm font-bold text-slate-700 transition shadow-sm">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"/></svg>
-                    Google ile Devam Et
-                </button>
-
-                <div class="relative flex py-2 items-center">
-                    <div class="flex-grow border-t border-slate-200"></div>
-                    <span class="flex-shrink mx-3 text-[11px] font-bold text-slate-400 uppercase">veya e-posta ile</span>
-                    <div class="flex-grow border-t border-slate-200"></div>
-                </div>
-
-                <form @submit.prevent="handleEmailLogin()" class="space-y-3">
-                    <div>
-                        <input type="email" x-model="loginForm.email" required placeholder="E-posta adresin" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#3c806d]">
-                    </div>
-                    <div>
-                        <input type="password" x-model="loginForm.password" required placeholder="Şifren" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#3c806d]">
-                    </div>
-                    <button type="submit" class="w-full bg-[#3c806d] hover:bg-[#2b5e50] text-white py-3.5 rounded-2xl font-bold text-sm transition shadow-md">
-                        Giriş Yap
-                    </button>
-                </form>
-            </div>
-
-            <p class="text-xs text-center text-slate-500 mt-6">
-                Hesabın yok mu? <button @click="authStep = 'register_options'" class="text-[#3c806d] font-bold hover:underline">Hemen Kaydol</button>
-            </p>
-        </div>
-
-        <!-- ADIM 2C: E-POSTA İLE KAYIT FORMU -->
-        <div x-show="authStep === 'email_register'" x-transition class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
-            <button @click="authStep = 'register_options'" class="absolute top-6 left-6 text-slate-400 hover:text-slate-700 font-bold text-xs">← Geri</button>
-            
-            <div class="text-center mt-4 mb-6">
-                <h2 class="text-xl font-black text-slate-900">E-posta ile Kaydol</h2>
-                <p class="text-xs text-slate-500 mt-1">Giriş bilgilerini belirle, ardından profilini tamamla.</p>
-            </div>
-
-            <form @submit.prevent="proceedEmailRegister()" class="space-y-3.5">
-                <div>
-                    <label class="text-xs font-bold text-slate-700 block mb-1">E-posta Adresi *</label>
-                    <input type="email" x-model="registerEmailForm.email" required placeholder="ornek@ogrenci.com" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#3c806d]">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-700 block mb-1">Şifre Oluştur *</label>
-                    <input type="password" x-model="registerEmailForm.password" required minlength="6" placeholder="En az 6 karakter" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#3c806d]">
-                </div>
-                <button type="submit" class="w-full bg-[#244d46] hover:bg-[#1a3833] text-white py-3.5 rounded-2xl font-bold text-sm transition shadow-md">
-                    Devam Et →
-                </button>
-            </form>
-        </div>
-
-        <!-- ADIM 3: GERÇEKÇİ GOOGLE HESAP SEÇİCİ PENCERESİ (OAUTH POPUP SİMÜLASYONU / FIREBASE FALLBACK) -->
-        <div x-show="authStep === 'google_oauth_popup'" x-transition class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative border border-slate-200">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
-                <div class="flex items-center gap-2.5">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"/></svg>
-                    <span class="text-sm font-semibold text-slate-600">Google ile oturum aç</span>
-                </div>
-                <button @click="authStep = oauthMode === 'register' ? 'register_options' : 'login_options'" class="text-slate-400 hover:text-slate-700 text-sm font-bold">✕</button>
-            </div>
-
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-12 h-12 bg-[#c6efdc] text-[#244d46] rounded-xl text-xl font-black mb-3">DP+</div>
-                <h3 class="text-xl font-bold text-slate-900">Bir hesap seçin</h3>
-                <p class="text-xs text-slate-500 mt-1"><span class="font-semibold text-slate-700">DersProPlus</span> uygulamasına devam etmek için</p>
-            </div>
-
-            <!-- Kayıtlı Google Hesapları + Kendi Gmailini Girme -->
-            <div class="border border-slate-200 rounded-2xl divide-y divide-slate-100 overflow-hidden mb-4">
-                <template x-for="acc in savedGoogleAccounts" :key="acc.email">
-                    <button @click="selectGoogleAccount(acc)" class="w-full flex items-center gap-3.5 p-3.5 hover:bg-slate-50 text-left transition">
-                        <div :class="acc.bg" class="w-9 h-9 rounded-full text-white font-bold text-sm flex items-center justify-center shrink-0" x-text="acc.initial"></div>
-                        <div class="overflow-hidden flex-1">
-                            <div class="text-xs font-bold text-slate-900 truncate" x-text="acc.name"></div>
-                            <div class="text-[11px] text-slate-500 truncate" x-text="acc.email"></div>
-                        </div>
-                        <span class="text-slate-300 text-xs">→</span>
-                    </button>
-                </template>
-
-                <!-- Başka bir Google hesabı (Kendi Gmail'ini seç/yaz) -->
-                <div class="p-3.5 bg-slate-50/70">
-                    <p class="text-[11px] font-bold text-slate-700 mb-2">Kendi Google (Gmail) Hesabınla Devam Et:</p>
-                    <div class="flex gap-2">
-                        <input type="email" x-model="customGmailInput" placeholder="adiniz@gmail.com" class="flex-1 border border-slate-300 bg-white rounded-xl px-3 py-2 text-xs outline-none focus:border-[#4285F4]">
-                        <button @click="connectCustomGmail()" class="bg-[#1a73e8] hover:bg-[#1557b0] text-white px-4 py-2 rounded-xl text-xs font-bold transition shrink-0">
-                            Seç
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <p class="text-[10px] text-slate-400 leading-relaxed text-center">
-                Devam ettiğinizde Google; adınızı, e-posta adresinizi ve profil resminizi DersProPlus ile paylaşacaktır.
-            </p>
-        </div>
-
-        <!-- ADIM 4: KAYIT SONRASI ZORUNLU PROFİL TAMAMLAMA (AD SOYAD, DOĞUM TARİHİ, SINIF) -->
-        <div x-show="authStep === 'onboarding_profile'" x-transition class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl">
-            <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 px-4 py-2.5 rounded-2xl mb-5">
-                <div class="flex items-center gap-2 overflow-hidden">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-                    <span class="text-xs font-bold text-emerald-950 truncate" x-text="onboardingForm.email"></span>
-                </div>
-                <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md shrink-0">Doğrulandı</span>
-            </div>
-
-            <h2 class="text-xl font-black text-slate-900 mb-1">Profilini Tamamla</h2>
-            <p class="text-xs text-slate-500 mb-5">Sana özel müfredat ve testleri hazırlamamız için bilgilerini gir.</p>
-
-            <form @submit.prevent="completeRegistration()" class="space-y-4">
-                <div>
-                    <label class="text-xs font-bold text-slate-700 block mb-1">Ad Soyad *</label>
-                    <input type="text" x-model="onboardingForm.fullName" required placeholder="Örn: Zeynep Kaya" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-[#3c806d]">
-                </div>
-
-                <div>
-                    <label class="text-xs font-bold text-slate-700 block mb-1">Doğum Tarihi *</label>
-                    <input type="date" x-model="onboardingForm.birthDate" required max="2014-12-31" min="1995-01-01" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-[#3c806d]">
-                </div>
-
-                <div>
-                    <label class="text-xs font-bold text-slate-700 block mb-1">Sınıfın / Sınav Hedefin *</label>
-                    <select x-model="onboardingForm.grade" required class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-[#3c806d] bg-white">
-                        <option value="9. Sınıf">9. Sınıf (Lise Başlangıç & TYT Temel)</option>
-                        <option value="10. Sınıf">10. Sınıf (TYT Odaklı Hazırlık)</option>
-                        <option value="11. Sınıf">11. Sınıf (AYT Başlangıç)</option>
-                        <option value="12. Sınıf">12. Sınıf (TYT + AYT Tam Kamp)</option>
-                        <option value="Mezun / YKS">Mezun / YKS Hazırlık</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="w-full bg-[#3c806d] hover:bg-[#2b5e50] text-white py-3.5 rounded-2xl font-bold text-sm transition shadow-lg mt-2">
-                    Kaydı Tamamla ve Başla →
-                </button>
-            </form>
-        </div>
-
+    <!-- GİRİŞ PROMPT ALANI -->
+    <div id="giris-ekrani">
+        <h2>Hoş Geldin</h2>
+        <p>Devam etmek için giriş bilgilerini gir:</p>
+        <input type="text" id="kullanici-adi" placeholder="Kullanıcı Adı" />
+        <input type="password" id="sifre" placeholder="Şifre" />
+        <button onclick="girisKontrol()">Giriş Yap</button>
+        <div id="hata-mesaji"></div>
     </div>
 
-    <!-- ========================================================= -->
-    <!-- 2. ÜST MENÜ (ANA UYGULAMA)                                -->
-    <!-- ========================================================= -->
-    <header class="bg-[#244d46] text-white shadow-md sticky top-0 z-40" x-show="isLoggedIn" x-cloak>
-        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span class="text-xl sm:text-2xl font-black tracking-tight">DersPro<span class="text-[#fa9a79]">Plus</span></span>
-                <span class="hidden sm:inline-block text-[10px] bg-white/10 px-2 py-0.5 rounded-md font-bold text-[#c6efdc]" x-text="lessons.length + ' Konu Aktif'"></span>
-            </div>
-            <div class="flex items-center space-x-2">
-                <span class="text-xs bg-[#32675d] px-3 py-1.5 rounded-full font-semibold" x-text="student.fullName + ' • ' + student.grade"></span>
-                <button @click="logout()" class="text-[11px] bg-red-500/90 hover:bg-red-600 px-3 py-1.5 rounded-full font-bold transition">Çıkış</button>
-            </div>
-        </div>
-    </header>
+    <!-- SİTE İÇİ DİĞER HER ŞEYİN YÜKLENECEĞİ ALAN -->
+    <div id="ana-icerik"></div>
 
-    <!-- ========================================================= -->
-    <!-- 3. ANA İÇERİK ALANI                                       -->
-    <!-- ========================================================= -->
-    <main class="max-w-6xl mx-auto px-4 py-5 pb-24" x-show="isLoggedIn" x-cloak>
-        
-        <!-- SEKME 1: KONULAR & OGM / ÖSYM TESTLERİ -->
-        <div x-show="activeTab === 'catalog'">
-            <div class="mb-4 flex flex-wrap justify-between items-center gap-3">
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900">9-10-11-12. Sınıf Konu Anlatımı ve OGM/ÖSYM Testleri</h1>
-                    <p class="text-xs text-slate-500">AI destekli konu anlatımını incele, her biri 20 soruluk (çıkmış TYT & resimli OGM) testleri çöz.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="text" x-model="searchQuery" placeholder="Konu veya ders ara..." class="bg-white border border-slate-200 rounded-full px-4 py-1.5 text-xs outline-none focus:border-[#3c806d] w-44 sm:w-56">
-                    <span class="text-xs font-extrabold bg-white border border-slate-200 px-3 py-1.5 rounded-full text-[#244d46]" x-text="filteredLessons.length + ' Konu'"></span>
-                </div>
-            </div>
+    <!-- Tüm site verileri ve içerik oluşturucu -->
+    <script src="veriler.js"></script>
 
-            <!-- SINIF SEKMELERİ -->
-            <div class="flex gap-2 overflow-x-auto pb-2 mb-3 custom-scrollbar">
-                <template x-for="lvl in gradeLevels" :key="lvl">
-                    <button @click="selectedLevel = lvl" 
-                            :class="selectedLevel === lvl ? 'bg-[#244d46] text-white shadow-md' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'"
-                            class="px-4 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition"
-                            x-text="lvl">
-                    </button>
-                </template>
-            </div>
-
-            <!-- BRANŞ FİLTRELERİ -->
-            <div class="flex gap-2 overflow-x-auto pb-3 mb-5 custom-scrollbar">
-                <template x-for="sub in subjects" :key="sub">
-                    <button @click="selectedSubject = sub" 
-                            :class="selectedSubject === sub ? 'bg-[#3c806d] text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'"
-                            class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition"
-                            x-text="sub">
-                    </button>
-                </template>
-            </div>
-
-            <!-- KONU KARTLARI -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <template x-for="lesson in filteredLessons" :key="lesson.id">
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
-                        <div>
-                            <div class="flex flex-wrap justify-between items-center gap-1 mb-3">
-                                <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-md bg-[#eaf5ee] text-[#3c806d]" x-text="lesson.subject"></span>
-                                <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-md bg-slate-100 text-slate-700" x-text="lesson.levelTag"></span>
-                                <span x-show="lesson.hasImage" class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-100 text-amber-800">🖼️ Resimli & TYT</span>
-                            </div>
-                            <h3 class="font-bold text-base text-slate-900 mb-1" x-text="lesson.title"></h3>
-                            <p class="text-xs text-slate-500 mb-4" x-text="lesson.subtitle + ' • ' + lesson.questions.length + ' Soru'"></p>
-                        </div>
-                        <div>
-                            <div class="w-full bg-slate-100 rounded-full h-2 mb-3">
-                                <div class="bg-[#3c806d] h-2 rounded-full transition-all duration-500" :style="'width: ' + lesson.progress + '%'"></div>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-slate-500" x-text="'İlerleme: %' + lesson.progress"></span>
-                                <button @click="openLesson(lesson)" class="bg-[#3c806d] text-white text-xs px-4 py-2 rounded-xl font-bold hover:bg-[#2b5e50] transition">Konuyu Aç & Test Çöz</button>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </div>
-
-        <!-- SEKME 2: PAKETLER -->
-        <div x-show="activeTab === 'plans'" x-cloak>
-            <div class="text-center mb-8">
-                <h1 class="text-2xl font-extrabold text-slate-900 mb-2">DersProPlus Üyelik Paketleri</h1>
-                <p class="text-xs text-slate-500">140 konu başlığı, AI konu anlatımı ve 2.800 OGM & ÖSYM sorusuna tam erişim.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <template x-for="plan in plans" :key="plan.id">
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xl font-bold text-slate-900 mb-2" x-text="plan.name"></h3>
-                            <div class="text-3xl font-black text-[#3c806d] mb-6">
-                                <span x-text="plan.price + ' TL'"></span>
-                                <span class="text-xs text-slate-400 font-normal">/' + plan.period</span>
-                            </div>
-                            <ul class="space-y-3 mb-6">
-                                <template x-for="feature in plan.features" :key="feature">
-                                    <li class="text-sm text-slate-600 flex items-center">
-                                        <span class="text-[#3c806d] mr-2 font-bold">✓</span> <span x-text="feature"></span>
-                                    </li>
-                                </template>
-                            </ul>
-                        </div>
-                        <button @click="subscribePlan(plan)" class="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold text-sm hover:bg-[#3c806d] transition">Paketi Seç</button>
-                    </div>
-                </template>
-            </div>
-        </div>
-
-        <!-- SEKME 3: PROFİLİM -->
-        <div x-show="activeTab === 'profile'" x-cloak>
-            <h1 class="text-2xl font-bold text-slate-900 mb-6">Öğrenci Profilim</h1>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
-                <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-16 h-16 bg-[#c6efdc] text-[#27745f] rounded-full flex items-center justify-center text-2xl font-bold" x-text="student.fullName.substring(0,2).toUpperCase()"></div>
-                        <div>
-                            <h2 class="text-xl font-bold text-slate-900" x-text="student.fullName"></h2>
-                            <p class="text-xs text-slate-500" x-text="student.email"></p>
-                            <div class="flex flex-wrap items-center gap-2 mt-1">
-                                <span class="text-xs font-bold text-[#3c806d] bg-[#eaf5ee] px-2.5 py-0.5 rounded-md" x-text="student.grade"></span>
-                                <span x-show="student.birthDate" class="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md" x-text="'🎂 ' + student.birthDate"></span>
-                                <span class="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-md" x-text="student.plan + ' Üye'"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-3 gap-3 border-t pt-4">
-                    <div class="bg-slate-50 p-3 rounded-xl text-center">
-                        <span class="block text-xl font-black text-[#3c806d]" x-text="completedCount + ' / ' + lessons.length"></span>
-                        <span class="text-[11px] text-slate-500 font-medium">Tamamlanan Konu</span>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-xl text-center">
-                        <span class="block text-xl font-black text-emerald-600" x-text="totalCorrect"></span>
-                        <span class="text-[11px] text-slate-500 font-medium">Toplam Doğru</span>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-xl text-center">
-                        <span class="block text-xl font-black text-[#fa9a79]" x-text="'%' + overallProgress"></span>
-                        <span class="text-[11px] text-slate-500 font-medium">Genel Başarı</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- ========================================================= -->
-    <!-- 4. AI KONU ANLATIMI & 20 SORULUK OGM / TYT TEST MODALI     -->
-    <!-- ========================================================= -->
-    <div x-show="selectedLesson" class="fixed inset-0 bg-black/65 z-50 flex items-center justify-center p-3" x-cloak>
-        <div class="bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl relative max-h-[92vh] overflow-y-auto custom-scrollbar">
-            <button @click="closeModal()" class="sticky top-0 float-right bg-slate-100 hover:bg-slate-200 text-slate-700 w-8 h-8 rounded-full font-bold text-sm flex items-center justify-center z-10">✕</button>
-            
-            <div class="flex flex-wrap items-center gap-2 mb-2">
-                <span class="text-xs bg-[#eaf5ee] text-[#3c806d] px-2.5 py-1 rounded-md font-bold" x-text="selectedLesson?.subject"></span>
-                <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md" x-text="selectedLesson?.levelTag"></span>
-                <span class="text-xs font-semibold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-md" x-text="selectedLesson?.subtitle"></span>
-            </div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mb-4" x-text="selectedLesson?.title"></h2>
-
-            <div class="flex border-b border-slate-200 mb-4 gap-4">
-                <button @click="modalStep = 'notes'" :class="modalStep === 'notes' ? 'border-b-2 border-[#3c806d] text-[#3c806d] font-extrabold' : 'text-slate-500 font-semibold'" class="pb-2 text-xs sm:text-sm transition">
-                    1. AI Destekli Konu Anlatımı
-                </button>
-                <button @click="modalStep = 'quiz'" :class="modalStep === 'quiz' ? 'border-b-2 border-[#3c806d] text-[#3c806d] font-extrabold' : 'text-slate-500 font-semibold'" class="pb-2 text-xs sm:text-sm transition">
-                    2. OGM & Çıkmış TYT Testi (<span x-text="selectedLesson?.questions.length"></span> Soru)
-                </button>
-            </div>
-            
-            <!-- AŞAMA 1: AI KONU ANLATIMI -->
-            <div x-show="modalStep === 'notes'" class="space-y-4">
-                <div class="bg-[#f4f9f6] border border-[#d6ebe0] p-5 rounded-2xl text-sm text-slate-800 leading-relaxed space-y-2" x-html="selectedLesson?.notes"></div>
-                
-                <div class="bg-amber-50/80 border border-amber-200 p-4 rounded-2xl">
-                    <h4 class="text-xs font-extrabold text-amber-900 mb-1">💡 ÖSYM & OGM Materyal Sınav Tüyosu:</h4>
-                    <p class="text-xs text-amber-800 leading-relaxed" x-text="selectedLesson?.examTip"></p>
-                </div>
-
-                <button @click="modalStep = 'quiz'" class="w-full bg-[#244d46] text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-[#1a3833] transition shadow-md">
-                    Konu Anlatımını Bitirdim, 20 Soruluk Testi Başlat →
-                </button>
-            </div>
-
-            <!-- AŞAMA 2: 20 SORULUK RESİMLİ & ÇIKMIŞ TYT + OGM TESTİ -->
-            <div x-show="modalStep === 'quiz'" class="space-y-5">
-                <div class="bg-slate-100 px-4 py-2.5 rounded-xl flex justify-between items-center text-xs font-bold text-slate-700">
-                    <span>İşaretlenen: <span class="text-[#3c806d]" x-text="Object.keys(userAnswers).length"></span> / <span x-text="selectedLesson?.questions.length"></span></span>
-                    <span>Çıkmış TYT + Resimli OGM Materyal</span>
-                </div>
-
-                <template x-for="(q, qIndex) in selectedLesson?.questions" :key="qIndex">
-                    <div class="border border-slate-200 rounded-2xl p-4 bg-slate-50/60">
-                        <div class="flex flex-wrap justify-between items-center gap-1 mb-2">
-                            <span class="text-xs font-extrabold text-[#3c806d]" x-text="'Soru ' + (qIndex + 1)"></span>
-                            <div class="flex items-center gap-1.5">
-                                <span x-show="q.svg" class="text-[10px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded">🖼️ Resimli / Şekilli</span>
-                                <span :class="q.source.includes('TYT') && !q.source.includes('OGM') ? 'bg-rose-100 text-rose-800' : 'bg-slate-200 text-slate-700'" class="text-[10px] font-bold px-2 py-0.5 rounded" x-text="q.source"></span>
-                            </div>
-                        </div>
-
-                        <div x-show="q.svg" class="my-3 bg-white border border-slate-200 rounded-xl p-3 flex justify-center items-center" x-html="q.svg"></div>
-
-                        <p class="text-sm font-semibold text-slate-900 mb-3 leading-snug" x-text="q.text"></p>
-                        
-                        <div class="space-y-2">
-                            <template x-for="(opt, oIndex) in q.options" :key="oIndex">
-                                <button @click="selectAnswer(qIndex, oIndex)"
-                                        :disabled="quizSubmitted"
-                                        :class="getOptionClass(qIndex, oIndex, q.correct)"
-                                        class="w-full text-left text-xs p-3 rounded-xl border transition flex items-center justify-between">
-                                    <span x-text="opt"></span>
-                                    <span x-show="quizSubmitted && oIndex === q.correct" class="font-bold text-emerald-700">✓ Doğru</span>
-                                    <span x-show="quizSubmitted && userAnswers[qIndex] === oIndex && oIndex !== q.correct" class="font-bold text-red-600">✕ Yanlış</span>
-                                </button>
-                            </template>
-                        </div>
-
-                        <div x-show="quizSubmitted" class="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-950">
-                            <span class="font-bold">Adım Adım Çözüm: </span><span x-text="q.explanation"></span>
-                        </div>
-                    </div>
-                </template>
-
-                <div x-show="quizSubmitted" class="p-4 rounded-2xl bg-[#eaf5ee] border border-[#3c806d] text-center">
-                    <p class="text-base font-extrabold text-[#244d46]" x-text="'Test Sonucun: ' + quizScore + ' Doğru / ' + (selectedLesson?.questions.length - quizScore) + ' Yanlış'"></p>
-                    <p class="text-xs text-slate-600 mt-1">Başarı oranın konu ilerleme çubuğuna kaydedildi!</p>
-                </div>
-
-                <div class="flex gap-3">
-                    <button x-show="!quizSubmitted" @click="submitQuiz()" class="w-full bg-[#3c806d] text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-[#2b5e50] transition shadow-md">
-                        Testi Bitir ve Sonuçları Gör
-                    </button>
-                    <button x-show="quizSubmitted" @click="closeModal()" class="w-full bg-slate-900 text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-slate-800 transition">
-                        Konu Listesine Dön
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ALT NAVİGASYON -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-3 px-6 flex justify-around items-center z-40" x-show="isLoggedIn" x-cloak>
-        <button @click="activeTab = 'catalog'" :class="activeTab === 'catalog' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-bold">
-            <span class="text-lg">📚</span>
-            <span>Konular</span>
-        </button>
-        <button @click="activeTab = 'plans'" :class="activeTab === 'plans' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-bold">
-            <span class="text-lg">⭐</span>
-            <span>Paketler</span>
-        </button>
-        <button @click="activeTab = 'profile'" :class="activeTab === 'profile' ? 'text-[#3c806d]' : 'text-slate-400'" class="flex flex-col items-center text-xs font-bold">
-            <span class="text-lg">👤</span>
-            <span>Profilim</span>
-        </button>
-    </nav>
-
-    <!-- ========================================================= -->
-    <!-- 5. JAVASCRIPT AUTH & UYGULAMA MANTIĞI                      -->
-    <!-- ========================================================= -->
+    <!-- Giriş Prompt Mantığı -->
     <script>
-        // İsteğe bağlı gerçek Firebase Google OAuth yapılandırması (Kendi proje bilgilerinizi girerseniz gerçek Google popup açılır)
-        const firebaseConfig = {
-            apiKey: "", // Kendi Firebase API Key'inizi buraya girerseniz doğrudan Google OAuth Popup açılır
-            authDomain: "",
-            projectId: ""
-        };
-        let firebaseAuth = null;
-        if (firebaseConfig.apiKey && typeof firebase !== 'undefined') {
-            firebase.initializeApp(firebaseConfig);
-            firebaseAuth = firebase.auth();
-        }
+        function girisKontrol() {
+            const kadi = document.getElementById("kullanici-adi").value.trim();
+            const sifre = document.getElementById("sifre").value.trim();
+            const hata = document.getElementById("hata-mesaji");
 
-        function dersProPlusApp() {
-            return {
-                isLoggedIn: false,
-                authStep: 'welcome', // 'welcome' | 'register_options' | 'login_options' | 'email_register' | 'google_oauth_popup' | 'onboarding_profile'
-                oauthMode: 'register', // 'register' | 'login'
-                customGmailInput: '',
-                searchQuery: '',
-
-                // Daha önce tarayıcıda kullanılan veya demo Google hesapları + yerel kayıtlı kullanıcılar
-                savedGoogleAccounts: JSON.parse(localStorage.getItem('dp_saved_google_accounts') || 'null') || [
-                    { name: 'Kaan Demir', email: 'kaandemir.yks@gmail.com', initial: 'K', bg: 'bg-emerald-600' },
-                    { name: 'Elif Yılmaz', email: 'elifyilmaz.lise@gmail.com', initial: 'E', bg: 'bg-blue-600' }
-                ],
-
-                loginForm: { email: '', password: '' },
-                registerEmailForm: { email: '', password: '' },
-                onboardingForm: {
-                    email: '',
-                    fullName: '',
-                    birthDate: '',
-                    grade: '12. Sınıf',
-                    authProvider: 'google'
-                },
-
-                activeTab: 'catalog',
-                selectedLevel: 'Tümü',
-                selectedSubject: 'Tümü',
-                selectedLesson: null,
-                modalStep: 'notes',
-                userAnswers: {},
-                quizSubmitted: false,
-                quizScore: 0,
-                totalCorrect: 0,
-
-                gradeLevels: ['Tümü', '9. Sınıf', '10. Sınıf', '11. Sınıf', '12. Sınıf'],
-                subjects: ['Tümü', 'Matematik', 'Fizik', 'Kimya', 'Biyoloji', 'Türkçe', 'Tarih', 'Coğrafya'],
-
-                student: {
-                    fullName: '',
-                    email: '',
-                    birthDate: '',
-                    grade: '12. Sınıf',
-                    plan: 'Uzman'
-                },
-
-                // veriler.js dosyasından gelen 140 konu başlığı
-                lessons: typeof DERSPRO_MUFREDAT !== 'undefined' ? DERSPRO_MUFREDAT : [],
-
-                plans: [
-                    { id: "baslangic", name: "Başlangıç", price: 100, period: "aylık", features: ["9-10-11-12. Sınıf AI konu özetleri", "Aylık mini testler", "İlerleme takibi"] },
-                    { id: "gelisen", name: "Gelişen", price: 200, period: "aylık", features: ["140 konunun tamamında AI konu anlatımı", "Resimli TYT & OGM soru havuzu", "Sınırsız 20 soruluk test çözümü"] },
-                    { id: "uzman", name: "Uzman", price: 350, period: "aylık", features: ["Gelişen paketteki her şey", "Çıkmış TYT soru yıl analizleri", "TYT + AYT tam kampı"] }
-                ],
-
-                init() {
-                    // Aktif oturum kontrolü
-                    const activeSession = localStorage.getItem('dp_active_user');
-                    if (activeSession) {
-                        this.student = JSON.parse(activeSession);
-                        this.isLoggedIn = true;
-                    }
-                },
-
-                // --- GOOGLE OAUTH & KAYIT / GİRİŞ AKIŞI ---
-                async triggerGoogleOAuth(mode) {
-                    this.oauthMode = mode;
-                    // Eğer gerçek Firebase API key girilmişse doğrudan Google Popup'ı açar
-                    if (firebaseAuth) {
-                        try {
-                            const provider = new firebase.auth.GoogleAuthProvider();
-                            const result = await firebaseAuth.signInWithPopup(provider);
-                            const user = result.user;
-                            this.handleGoogleSuccess({
-                                email: user.email,
-                                name: user.displayName || user.email.split('@')[0]
-                            });
-                            return;
-                        } catch (err) {
-                            console.warn("Firebase popup yerine yerleşik hesap seçici açılıyor:", err);
-                        }
-                    }
-                    // Standart Google Hesap Seçici Penceresini Aç
-                    this.authStep = 'google_oauth_popup';
-                },
-
-                selectGoogleAccount(acc) {
-                    this.handleGoogleSuccess(acc);
-                },
-
-                connectCustomGmail() {
-                    const email = this.customGmailInput.trim().toLowerCase();
-                    if (!email || !email.includes('@')) {
-                        alert("Lütfen geçerli bir Gmail / e-posta adresi girin.");
-                        return;
-                    }
-                    const nameGuess = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    const newAcc = {
-                        name: nameGuess,
-                        email: email,
-                        initial: nameGuess.charAt(0).toUpperCase(),
-                        bg: 'bg-indigo-600'
-                    };
-                    // Hesap listesine kaydet
-                    if (!this.savedGoogleAccounts.some(a => a.email === email)) {
-                        this.savedGoogleAccounts.unshift(newAcc);
-                        localStorage.setItem('dp_saved_google_accounts', JSON.stringify(this.savedGoogleAccounts));
-                    }
-                    this.handleGoogleSuccess(newAcc);
-                },
-
-                handleGoogleSuccess(acc) {
-                    const usersDb = JSON.parse(localStorage.getItem('dp_users_db') || '{}');
-                    if (usersDb[acc.email]) {
-                        // Daha önce kayıt olmuşsa doğrudan içeri al
-                        this.student = usersDb[acc.email];
-                        localStorage.setItem('dp_active_user', JSON.stringify(this.student));
-                        this.isLoggedIn = true;
-                    } else {
-                        // İlk kez kaydoluyorsa Ad Soyad, Doğum Tarihi ve Sınıf ekranına yönlendir
-                        this.onboardingForm = {
-                            email: acc.email,
-                            fullName: acc.name || '',
-                            birthDate: '',
-                            grade: '12. Sınıf',
-                            authProvider: 'google'
-                        };
-                        this.authStep = 'onboarding_profile';
-                    }
-                },
-
-                proceedEmailRegister() {
-                    const email = this.registerEmailForm.email.trim().toLowerCase();
-                    const usersDb = JSON.parse(localStorage.getItem('dp_users_db') || '{}');
-                    if (usersDb[email]) {
-                        alert("Bu e-posta adresi zaten kayıtlı. Giriş yapmayı deneyin.");
-                        this.authStep = 'login_options';
-                        return;
-                    }
-                    this.onboardingForm = {
-                        email: email,
-                        fullName: '',
-                        birthDate: '',
-                        grade: '12. Sınıf',
-                        password: this.registerEmailForm.password,
-                        authProvider: 'email'
-                    };
-                    this.authStep = 'onboarding_profile';
-                },
-
-                completeRegistration() {
-                    if (!this.onboardingForm.fullName.trim() || !this.onboardingForm.birthDate || !this.onboardingForm.grade) {
-                        alert("Lütfen Ad Soyad, Doğum Tarihi ve Sınıf bilgilerini eksiksiz doldurun.");
-                        return;
-                    }
-                    const newUser = {
-                        fullName: this.onboardingForm.fullName.trim(),
-                        email: this.onboardingForm.email,
-                        birthDate: this.onboardingForm.birthDate,
-                        grade: this.onboardingForm.grade,
-                        password: this.onboardingForm.password || null,
-                        plan: 'Uzman'
-                    };
-                    const usersDb = JSON.parse(localStorage.getItem('dp_users_db') || '{}');
-                    usersDb[newUser.email] = newUser;
-                    localStorage.setItem('dp_users_db', JSON.stringify(usersDb));
-                    localStorage.setItem('dp_active_user', JSON.stringify(newUser));
-
-                    this.student = newUser;
-                    this.selectedLevel = newUser.grade.includes('Sınıf') ? newUser.grade : 'Tümü';
-                    this.isLoggedIn = true;
-                },
-
-                handleEmailLogin() {
-                    const email = this.loginForm.email.trim().toLowerCase();
-                    const usersDb = JSON.parse(localStorage.getItem('dp_users_db') || '{}');
-                    const user = usersDb[email];
-                    if (!user) {
-                        alert("Bu e-posta ile kayıtlı hesap bulunamadı. Önce kaydolun.");
-                        return;
-                    }
-                    if (user.password && user.password !== this.loginForm.password) {
-                        alert("Şifre hatalı!");
-                        return;
-                    }
-                    this.student = user;
-                    localStorage.setItem('dp_active_user', JSON.stringify(user));
-                    this.isLoggedIn = true;
-                },
-
-                logout() {
-                    localStorage.removeItem('dp_active_user');
-                    this.isLoggedIn = false;
-                    this.authStep = 'welcome';
-                    this.customGmailInput = '';
-                },
-
-                // --- FİLTRE & DERS MANTIĞI ---
-                get filteredLessons() {
-                    const q = this.searchQuery.toLowerCase().trim();
-                    return this.lessons.filter(l => {
-                        const matchLevel = this.selectedLevel === 'Tümü' || l.levelTag === this.selectedLevel;
-                        const matchSubject = this.selectedSubject === 'Tümü' || l.subject === this.selectedSubject;
-                        const matchSearch = !q || l.title.toLowerCase().includes(q) || l.subject.toLowerCase().includes(q) || l.subtitle.toLowerCase().includes(q);
-                        return matchLevel && matchSubject && matchSearch;
-                    });
-                },
-                get completedCount() {
-                    return this.lessons.filter(l => l.progress === 100).length;
-                },
-                get overallProgress() {
-                    if (!this.lessons.length) return 0;
-                    const sum = this.lessons.reduce((acc, l) => acc + l.progress, 0);
-                    return Math.round(sum / this.lessons.length);
-                },
-                openLesson(lesson) {
-                    this.selectedLesson = lesson;
-                    this.modalStep = 'notes';
-                    this.userAnswers = {};
-                    this.quizSubmitted = false;
-                    this.quizScore = 0;
-                },
-                closeModal() {
-                    this.selectedLesson = null;
-                },
-                selectAnswer(qIndex, oIndex) {
-                    if (!this.quizSubmitted) {
-                        this.userAnswers[qIndex] = oIndex;
-                    }
-                },
-                getOptionClass(qIndex, oIndex, correctIndex) {
-                    if (!this.quizSubmitted) {
-                        return this.userAnswers[qIndex] === oIndex 
-                            ? 'border-[#3c806d] bg-[#eaf5ee] font-bold text-[#244d46]' 
-                            : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700';
-                    }
-                    if (oIndex === correctIndex) {
-                        return 'border-emerald-500 bg-emerald-50 font-bold text-emerald-900';
-                    }
-                    if (this.userAnswers[qIndex] === oIndex && oIndex !== correctIndex) {
-                        return 'border-red-400 bg-red-50 text-red-900';
-                    }
-                    return 'border-slate-200 bg-white opacity-60';
-                },
-                submitQuiz() {
-                    if (!this.selectedLesson) return;
-                    const questions = this.selectedLesson.questions;
-                    if (Object.keys(this.userAnswers).length < questions.length) {
-                        alert(`Lütfen testi bitirmeden önce tüm ${questions.length} soruyu işaretleyin! (Şu an ${Object.keys(this.userAnswers).length} soru işaretli)`);
-                        return;
-                    }
-                    let score = 0;
-                    questions.forEach((q, idx) => {
-                        if (this.userAnswers[idx] === q.correct) {
-                            score++;
-                        }
-                    });
-                    this.quizScore = score;
-                    this.totalCorrect += score;
-                    this.quizSubmitted = true;
-                    
-                    const percent = Math.round((score / questions.length) * 100);
-                    this.selectedLesson.progress = Math.max(this.selectedLesson.progress, percent);
-                },
-                subscribePlan(plan) {
-                    this.student.plan = plan.name;
-                    alert(plan.name + " paketi seçildi! DersProPlus ile başarılar dileriz.");
-                }
+            // Basit giriş kontrolü (İstediğin gibi değiştirebilirsin)
+            if (kadi === "admin" && sifre === "1234") {
+                document.getElementById("giris-ekrani").style.display = "none";
+                const anaIcerik = document.getElementById("ana-icerik");
+                anaIcerik.style.display = "block";
+                
+                // veriler.js içindeki fonksiyonu tetikleyip siteyi kuruyoruz
+                siteyiBaslat(kadi);
+            } else {
+                hata.textContent = "Hatalı kullanıcı adı veya şifre! (İpucu: admin / 1234)";
             }
         }
     </script>
