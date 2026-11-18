@@ -3,65 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DersProPlus - YKS (TYT-AYT) Hazırlık Platformu</title>
+    <title>DersProPlus - 12. Sınıf Sayısal Platformu</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Konu ve Soru Havuzu Verileri -->
     <script src="veriler.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="bg-[#f7f8f5] text-[#202c32] font-sans antialiased" x-data="dersProPlusApp()">
 
-    <!-- GİRİŞ & KAYIT EKRANI -->
+    <!-- GERÇEKÇİ GOOGLE HESAP SEÇİM EKRANI (CHATGPT TARZI) -->
     <div x-show="!isLoggedIn" class="fixed inset-0 bg-[#1d3f39] z-50 flex items-center justify-center p-4">
         
-        <!-- Adım 1: Karşılama ve Mod Seçimi (Giriş Yap / Kayıt Ol) -->
-        <div x-show="authStep === 'welcome'" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl text-center">
+        <!-- Adım 1: Karşılama ve Google ile Giriş Yap / Kayıt Ol Butonu -->
+        <div x-show="authStep === 'home'" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl text-center">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-[#c6efdc] text-[#244d46] rounded-2xl text-3xl font-black mb-4">DP+</div>
             <h1 class="text-2xl font-black text-slate-900 mb-1">DersPro<span class="text-[#fa9a79]">Plus</span></h1>
-            <p class="text-xs text-slate-500 mb-6">2027 YKS (TYT-AYT) Akıllı Eğitim Platformu</p>
+            <p class="text-xs text-slate-500 mb-6">12. Sınıf Sayısal & YKS Akıllı Eğitim Platformu</p>
             
-            <div class="space-y-3">
-                <button @click="authStep = 'email_input'; isRegisterMode = true;" class="w-full bg-[#3c806d] text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-[#2b5e50] transition shadow-md">
-                    Kayıt Ol (E-posta ile)
-                </button>
-                <button @click="authStep = 'email_input'; isRegisterMode = false;" class="w-full border border-slate-300 py-3.5 rounded-2xl font-bold text-sm text-slate-700 hover:bg-slate-50 transition">
-                    Oturum Aç
-                </button>
-            </div>
-            <p class="text-[10px] text-slate-400 mt-6">Devam ederek kullanım şartlarını kabul etmiş olursun.</p>
+            <button @click="authStep = 'chooser'" class="w-full flex items-center justify-center gap-3 border border-slate-300 py-3.5 px-4 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm">
+                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"/></svg>
+                Google ile Giriş Yap / Kayıt Ol
+            </button>
+            <p class="text-[10px] text-slate-400 mt-6">Tek tıkla hesabını seç ve hemen çalışmaya başla.</p>
         </div>
 
-        <!-- Adım 2: E-posta Adresi Girme ve Kod Gönderme -->
-        <div x-show="authStep === 'email_input'" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl relative">
-            <button @click="authStep = 'welcome'" class="absolute top-4 left-4 text-slate-400 font-bold text-xs">← Geri</button>
-            <div class="text-center mb-6 mt-2">
-                <h2 class="text-lg font-extrabold text-slate-900" x-text="isRegisterMode ? 'Aramıza Katıl' : 'Tekrar Hoş Geldin'"></h2>
-                <p class="text-xs text-slate-500 mt-1">E-posta adresine 6 haneli doğrulama kodu göndereceğiz.</p>
+        <!-- Adım 2: Gmail Hesap Zinciri Seçim Penceresi -->
+        <div x-show="authStep === 'chooser'" class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+            <button @click="authStep = 'home'" class="absolute top-4 right-4 text-slate-400 font-bold text-xs">✕</button>
+            <div class="flex items-center gap-2 mb-1">
+                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"/></svg>
+                <span class="text-base font-bold text-slate-900">Bir hesap seçin</span>
             </div>
+            <p class="text-xs text-slate-500 mb-4">DersProPlus uygulamasına devam edin</p>
             
-            <div class="space-y-4">
-                <div>
-                    <label class="text-xs font-bold text-slate-700 block mb-1">E-posta Adresin</label>
-                    <input type="email" x-model="userEmail" placeholder="ornek@gmail.com" class="w-full border border-slate-300 rounded-xl px-3.5 py-3 text-sm outline-none focus:border-[#3c806d]">
-                </div>
-                <button @click="sendVerificationCode()" class="w-full bg-[#3c806d] text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-[#2b5e50] transition">
-                    Doğrulama Kodu Gönder
-                </button>
-            </div>
-        </div>
-
-        <!-- Adım 3: 6 Haneli Kodu Girme Ekranı -->
-        <div x-show="authStep === 'verify_code'" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl text-center relative">
-            <button @click="authStep = 'email_input'" class="absolute top-4 left-4 text-slate-400 font-bold text-xs">← Geri</button>
-            <h2 class="text-lg font-extrabold text-slate-900 mb-1 mt-2">Kodu Gir</h2>
-            <p class="text-xs text-slate-500 mb-6"><span class="font-bold text-slate-800" x-text="userEmail"></span> adresine gönderilen 6 haneli kodu yaz.</p>
-            
-            <div class="space-y-4">
-                <input type="text" x-model="enteredCode" maxlength="6" placeholder="123456" class="w-full text-center tracking-widest text-2xl font-black border border-slate-300 rounded-xl py-3 outline-none focus:border-[#3c806d]">
-                <button @click="verifyCode()" class="w-full bg-[#3c806d] text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-[#2b5e50] transition">
-                    Onayla ve Giriş Yap →
-                </button>
+            <div class="border border-slate-200 rounded-2xl divide-y divide-slate-100 mb-4">
+                <template x-for="acc in googleAccounts" :key="acc.email">
+                    <button @click="selectAccount(acc)" class="w-full flex items-center gap-3.5 p-3.5 hover:bg-slate-50 text-left transition">
+                        <div :class="acc.bg" class="w-10 h-10 rounded-full text-white font-bold text-sm flex items-center justify-center shrink-0" x-text="acc.initial"></div>
+                        <div>
+                            <div class="text-xs font-bold text-slate-900" x-text="acc.name"></div>
+                            <div class="text-[11px] text-slate-500" x-text="acc.email"></div>
+                        </div>
+                    </button>
+                </template>
             </div>
         </div>
 
@@ -72,32 +56,26 @@
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <span class="text-xl font-black">DersPro<span class="text-[#fa9a79]">Plus</span></span>
             <div class="flex items-center space-x-2">
-                <span class="text-xs bg-[#32675d] px-3 py-1 rounded-full font-semibold" x-text="userEmail"></span>
+                <span class="text-xs bg-[#32675d] px-3 py-1 rounded-full font-semibold" x-text="student.name + ' • 12. Sınıf Sayısal'"></span>
                 <button @click="logout()" class="text-[11px] bg-red-500 px-2.5 py-1 rounded-full font-bold">Çıkış</button>
             </div>
         </div>
     </header>
 
-    <!-- ANA İÇERİK (SADECE TYT VE AYT) -->
+    <!-- ANA İÇERİK (12. SINIF MATEMATİK & FEN) -->
     <main class="max-w-6xl mx-auto px-4 py-5 pb-24" x-show="isLoggedIn" x-cloak>
         <div class="mb-4 flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-extrabold text-slate-900">2027 YKS Soru ve Konu Havuzu</h1>
-                <p class="text-xs text-slate-500">Tamamen TYT ve AYT Matematik & Fen Bilimleri</p>
+                <h1 class="text-xl font-extrabold text-slate-900">12. Sınıf Sayısal Konu ve Soru Havuzu</h1>
+                <p class="text-xs text-slate-500">Matematik ve Fen Bilimleri • OGM Materyal & ÖSYM Çıkmış Sorular</p>
             </div>
             <span class="text-xs font-extrabold bg-white border px-3 py-1 rounded-full text-[#244d46]" x-text="filteredLessons.length + ' Konu'"></span>
         </div>
 
-        <!-- TYT / AYT SEKMELERİ -->
-        <div class="flex gap-2 mb-4">
-            <button @click="selectedCategory = 'TYT'" :class="selectedCategory === 'TYT' ? 'bg-[#244d46] text-white shadow' : 'bg-white text-slate-700 border'" class="flex-1 py-3 rounded-2xl text-xs font-extrabold transition">TYT (Temel Yeterlilik)</button>
-            <button @click="selectedCategory = 'AYT'" :class="selectedCategory === 'AYT' ? 'bg-[#244d46] text-white shadow' : 'bg-white text-slate-700 border'" class="flex-1 py-3 rounded-2xl text-xs font-extrabold transition">AYT (Alan Yeterlilik - Sayısal)</button>
-        </div>
-
-        <!-- BRANŞ FİLTRELERİ -->
+        <!-- DERS FİLTRELERİ -->
         <div class="flex gap-2 overflow-x-auto pb-3 mb-5">
             <template x-for="sub in subjects" :key="sub">
-                <button @click="selectedSubject = sub" :class="selectedSubject === sub ? 'bg-[#3c806d] text-white' : 'bg-white text-slate-600 border'" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition" x-text="sub"></button>
+                <button @click="selectedSubject = sub" :class="selectedSubject === sub ? 'bg-[#3c806d] text-white' : 'bg-white text-slate-600 border'" class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition" x-text="sub"></button>
             </template>
         </div>
 
@@ -108,10 +86,10 @@
                     <div>
                         <div class="flex justify-between items-center mb-3">
                             <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-md bg-[#eaf5ee] text-[#3c806d]" x-text="lesson.subject"></span>
-                            <span x-show="lesson.hasImage" class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-100 text-amber-800">🖼️ Resimli Soru</span>
+                            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-100 text-amber-800">🎯 20 Soru</span>
                         </div>
                         <h3 class="font-bold text-base text-slate-900 mb-1" x-text="lesson.title"></h3>
-                        <p class="text-xs text-slate-500 mb-4" x-text="lesson.questions.length + ' Soruluk OGM / ÖSYM Testi'"></p>
+                        <p class="text-xs text-slate-500 mb-4">OGM Materyal & ÖSYM Çıkmış Soru Formatı</p>
                     </div>
                     <div>
                         <div class="w-full bg-slate-100 rounded-full h-2 mb-3">
@@ -119,7 +97,7 @@
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold text-slate-500" x-text="'Başarı: %' + lesson.progress"></span>
-                            <button @click="openLesson(lesson)" class="bg-[#3c806d] text-white text-xs px-4 py-2 rounded-xl font-bold">Konuyu Aç & 20 Soru</button>
+                            <button @click="openLesson(lesson)" class="bg-[#3c806d] text-white text-xs px-4 py-2 rounded-xl font-bold">Konuyu Aç & 20 Soru Çöz</button>
                         </div>
                     </div>
                 </div>
@@ -127,30 +105,31 @@
         </div>
     </main>
 
-    <!-- TEST MODALI -->
+    <!-- TEST VE KONU ANLATIMI MODALI -->
     <div x-show="selectedLesson" class="fixed inset-0 bg-black/65 z-50 flex items-center justify-center p-3" x-cloak>
         <div class="bg-white rounded-3xl max-w-2xl w-full p-5 shadow-2xl relative max-h-[92vh] overflow-y-auto">
             <button @click="selectedLesson = null" class="sticky top-0 float-right bg-slate-100 w-8 h-8 rounded-full font-bold text-sm">✕</button>
             <h2 class="text-lg font-extrabold text-slate-900 mb-3" x-text="selectedLesson?.title"></h2>
 
             <div class="flex border-b border-slate-200 mb-4 gap-4">
-                <button @click="modalStep = 'notes'" :class="modalStep === 'notes' ? 'border-b-2 border-[#3c806d] text-[#3c806d] font-bold' : 'text-slate-500'" class="pb-2 text-xs">1. AI Konu Özeti</button>
-                <button @click="modalStep = 'quiz'" :class="modalStep === 'quiz' ? 'border-b-2 border-[#3c806d] text-[#3c806d] font-bold' : 'text-slate-500'" class="pb-2 text-xs">2. 20 Soruluk OGM Testi</button>
+                <button @click="modalStep = 'notes'" :class="modalStep === 'notes' ? 'border-b-2 border-[#3c806d] text-[#3c806d] font-bold' : 'text-slate-500'" class="pb-2 text-xs">1. Konu Anlatımı</button>
+                <button @click="modalStep = 'quiz'" :class="modalStep === 'quiz' ? 'border-b-2 border-[#3c806d] text-[#3c806d] font-bold' : 'text-slate-500'" class="pb-2 text-xs">2. 20 Soruluk OGM & ÖSYM Testi</button>
             </div>
 
+            <!-- 1. BÖLÜM: DETAYLI KONU ANLATIMI -->
             <div x-show="modalStep === 'notes'" class="space-y-4">
                 <div class="bg-[#f4f9f6] p-4 rounded-2xl text-sm text-slate-800 leading-relaxed" x-html="selectedLesson?.notes"></div>
-                <button @click="modalStep = 'quiz'" class="w-full bg-[#244d46] text-white py-3.5 rounded-2xl font-bold text-sm">20 Sorluk Teste Başla →</button>
+                <button @click="modalStep = 'quiz'" class="w-full bg-[#244d46] text-white py-3.5 rounded-2xl font-bold text-sm">20 Soruluk Teste Başla →</button>
             </div>
 
+            <!-- 2. BÖLÜM: 20 SORULUK TEST -->
             <div x-show="modalStep === 'quiz'" class="space-y-5">
                 <template x-for="(q, qIndex) in selectedLesson?.questions" :key="qIndex">
                     <div class="border rounded-2xl p-4 bg-slate-50">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-xs font-extrabold text-[#3c806d]" x-text="'Soru ' + (qIndex + 1) + ' / 20'"></span>
-                            <span class="text-[10px] font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded" x-text="q.source"></span>
+                            <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded" x-text="q.source"></span>
                         </div>
-                        <div x-show="q.svg" class="my-3 bg-white border rounded-xl p-3 flex justify-center" x-html="q.svg"></div>
                         <p class="text-sm font-semibold text-slate-900 mb-3" x-text="q.text"></p>
                         <div class="space-y-2">
                             <template x-for="(opt, oIndex) in q.options" :key="oIndex">
@@ -160,6 +139,7 @@
                                 </button>
                             </template>
                         </div>
+                        <div x-show="quizSubmitted" class="mt-2.5 p-2.5 bg-blue-50 rounded-xl text-xs text-blue-900" x-text="'Çözüm: ' + q.explanation"></div>
                     </div>
                 </template>
 
@@ -167,7 +147,7 @@
                     <p class="text-base font-extrabold text-[#244d46]" x-text="'Test Sonucu: ' + quizScore + ' Doğru / ' + (20 - quizScore) + ' Yanlış'"></p>
                 </div>
 
-                <button x-show="!quizSubmitted" @click="submitQuiz()" class="w-full bg-[#3c806d] text-white py-3.5 rounded-2xl font-bold text-sm">Testi Bitir</button>
+                <button x-show="!quizSubmitted" @click="submitQuiz()" class="w-full bg-[#3c806d] text-white py-3.5 rounded-2xl font-bold text-sm">Testi Bitir ve Sonuçları Gör</button>
                 <button x-show="quizSubmitted" @click="selectedLesson = null" class="w-full bg-slate-900 text-white py-3.5 rounded-2xl font-bold text-sm">Kataloğa Dön</button>
             </div>
         </div>
@@ -177,50 +157,33 @@
         function dersProPlusApp() {
             return {
                 isLoggedIn: false,
-                authStep: 'welcome',
-                isRegisterMode: true,
-                userEmail: '',
-                enteredCode: '',
-                generatedCode: '',
-                selectedCategory: 'TYT',
+                authStep: 'home',
+                googleAccounts: [
+                    { name: 'Kerem Soygazlı', email: 'spiderman04072009@gmail.com', initial: 'K', bg: 'bg-emerald-600' },
+                    { name: 'Kaan Demir', email: 'kaandemir.yks2027@gmail.com', initial: 'K', bg: 'bg-blue-600' },
+                    { name: 'Ahmet Dülger', email: 'dulger602@gmail.com', initial: 'A', bg: 'bg-purple-600' }
+                ],
+                student: { name: '', email: '' },
                 selectedSubject: 'Tümü',
                 selectedLesson: null,
                 modalStep: 'notes',
                 userAnswers: {},
                 quizSubmitted: false,
                 quizScore: 0,
-                subjects: ['Tümü', 'Matematik', 'Fizik', 'Kimya', 'Biyoloji', 'Türkçe'],
+                subjects: ['Tümü', 'Matematik', 'Fizik', 'Kimya', 'Biyoloji'],
                 lessons: window.DERSPRO_LESSONS || [],
 
-                sendVerificationCode() {
-                    if (!this.userEmail.includes('@')) {
-                        alert("Lütfen geçerli bir e-posta adresi girin!");
-                        return;
-                    }
-                    // Simüle edilmiş 6 haneli kod üretimi (Test için ekranda gösterilir veya direkt geçilir)
-                    this.generatedCode = '123456';
-                    alert(this.userEmail + " adresine doğrulama kodu gönderildi! (Test için kodunuz: 123456)");
-                    this.authStep = 'verify_code';
-                },
-                verifyCode() {
-                    if (this.enteredCode === this.generatedCode) {
-                        this.isLoggedIn = true;
-                    } else {
-                        alert("Hatalı kod! Lütfen '123456' girin.");
-                    }
+                selectAccount(acc) {
+                    this.student.name = acc.name;
+                    this.student.email = acc.email;
+                    this.isLoggedIn = true;
                 },
                 logout() {
                     this.isLoggedIn = false;
-                    this.authStep = 'welcome';
-                    this.userEmail = '';
-                    this.enteredCode = '';
+                    this.authStep = 'home';
                 },
                 get filteredLessons() {
-                    return this.lessons.filter(l => {
-                        const mCat = l.category === this.selectedCategory;
-                        const mSub = this.selectedSubject === 'Tümü' || l.subject === this.selectedSubject;
-                        return mCat && mSub;
-                    });
+                    return this.lessons.filter(l => this.selectedSubject === 'Tümü' || l.subject === this.selectedSubject);
                 },
                 openLesson(lesson) {
                     this.selectedLesson = lesson;
@@ -230,7 +193,9 @@
                 },
                 getOptClass(qIdx, oIdx, corr) {
                     if (!this.quizSubmitted) return this.userAnswers[qIdx] === oIdx ? 'bg-[#eaf5ee] border-[#3c806d] font-bold' : 'bg-white';
-                    return oIdx === corr ? 'bg-emerald-50 border-emerald-500 font-bold text-emerald-900' : 'bg-white opacity-60';
+                    if (oIdx === corr) return 'bg-emerald-50 border-emerald-500 font-bold text-emerald-900';
+                    if (this.userAnswers[qIdx] === oIdx) return 'bg-red-50 border-red-400 text-red-900';
+                    return 'bg-white opacity-60';
                 },
                 submitQuiz() {
                     let s = 0;
