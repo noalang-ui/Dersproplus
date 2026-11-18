@@ -3,222 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DersProPlus - 12. Sınıf Sayısal Platformu</title>
+    <title>Qorex - Yeni Nesil Dijital Menü & Müşteri Deneyimi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>[x-cloak] { display: none !important; }</style>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        [x-cloak] { display: none !important; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
 </head>
-<body class="bg-[#f7f8f5] text-[#202c32] font-sans antialiased" x-data="dersProPlusApp()">
+<body class="bg-[#faf9f6] text-stone-800 antialiased pb-24" x-data="qrMenuApp()">
 
-    <!-- GOOGLE HESAP SEÇİM EKRANI -->
-    <div x-show="!isLoggedIn" class="fixed inset-0 bg-[#1d3f39] z-50 flex items-center justify-center p-4">
-        <div x-show="authStep === 'home'" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl text-center">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-[#c6efdc] text-[#244d46] rounded-2xl text-3xl font-black mb-4">DP+</div>
-            <h1 class="text-2xl font-black text-slate-900 mb-1">DersPro<span class="text-[#fa9a79]">Plus</span></h1>
-            <p class="text-xs text-slate-500 mb-6">12. Sınıf Sayısal & YKS Platformu</p>
-            <button @click="authStep = 'chooser'" class="w-full flex items-center justify-center gap-3 border border-slate-300 py-3.5 px-4 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm">
-                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"/></svg>
-                Google ile Giriş Yap
-            </button>
-        </div>
-
-        <div x-show="authStep === 'chooser'" class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
-            <button @click="authStep = 'home'" class="absolute top-4 right-4 text-slate-400 font-bold text-xs">✕</button>
-            <h2 class="text-base font-bold text-slate-900 mb-1">Bir hesap seçin</h2>
-            <p class="text-xs text-slate-500 mb-4">DersProPlus uygulamasına devam edin</p>
-            <div class="border border-slate-200 rounded-2xl divide-y divide-slate-100 mb-4">
-                <template x-for="acc in googleAccounts" :key="acc.email">
-                    <button @click="selectAccount(acc)" class="w-full flex items-center gap-3.5 p-3.5 hover:bg-slate-50 text-left">
-                        <div :class="acc.bg" class="w-10 h-10 rounded-full text-white font-bold text-sm flex items-center justify-center shrink-0" x-text="acc.initial"></div>
-                        <div>
-                            <div class="text-xs font-bold text-slate-900" x-text="acc.name"></div>
-                            <div class="text-[11px] text-slate-500" x-text="acc.email"></div>
+    <!-- ÜST KAPAK VE MEKAN BİLGİSİ -->
+    <div class="relative bg-stone-900 text-white rounded-b-[2.5rem] shadow-xl overflow-hidden">
+        <!-- Arka Plan Görseli -->
+        <img :src="mekan.kapakGorseli" alt="Kapak" class="w-full h-52 object-cover opacity-45">
+        <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-900/40 to-transparent"></div>
+        
+        <!-- Mekan Başlık ve Hızlı Butonlar -->
+        <div class="relative -mt-20 px-5 pb-6 max-w-lg mx-auto">
+            <div class="flex items-end justify-between mb-3">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-500 text-stone-950 font-black text-2xl flex items-center justify-center shadow-lg border-2 border-white/20" x-text="mekan.logoHarf"></div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] uppercase tracking-widest text-amber-400 font-bold" x-text="mekan.altBaslik"></span>
+                            <span class="text-[9px] bg-white/20 text-white px-2 py-0.5 rounded-full font-bold">Powered by Qorex</span>
                         </div>
-                    </button>
-                </template>
+                        <h1 class="text-2xl font-extrabold tracking-tight text-white" x-text="mekan.ad"></h1>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hızlı Aksiyon Barı (Wi-Fi & Instagram & Google Puan) -->
+            <div class="grid grid-cols-3 gap-2 mt-4">
+                <button @click="copyWifi()" class="bg-white/10 backdrop-blur-md border border-white/15 py-2.5 px-2 rounded-2xl text-center hover:bg-white/20 transition">
+                    <div class="text-xs font-bold text-white" x-text="wifiCopied ? '✓ Kopyalandı!' : '📶 Wi-Fi Şifresi'"></div>
+                    <div class="text-[10px] text-stone-300 truncate" x-text="mekan.wifiSifre"></div>
+                </button>
+                <button @click="reviewModal = true; rating = 0; feedbackSent = false" class="bg-amber-500 text-stone-950 py-2.5 px-2 rounded-2xl text-center font-extrabold shadow-md hover:bg-amber-400 transition">
+                    <div class="text-xs">⭐ Bizi Puanla</div>
+                    <div class="text-[10px] text-stone-900/80">Google Yorum</div>
+                </button>
+                <a :href="mekan.instagramUrl" target="_blank" class="bg-white/10 backdrop-blur-md border border-white/15 py-2.5 px-2 rounded-2xl text-center hover:bg-white/20 transition">
+                    <div class="text-xs font-bold text-white">📸 Instagram</div>
+                    <div class="text-[10px] text-stone-300" x-text="mekan.instagramKullanici"></div>
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- ÜST MENÜ -->
-    <header class="bg-[#244d46] text-white shadow-md sticky top-0 z-40" x-show="isLoggedIn" x-cloak>
-        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-            <span class="text-xl font-black">DersPro<span class="text-[#fa9a79]">Plus</span></span>
-            <div class="flex items-center space-x-2">
-                <span class="text-xs bg-[#32675d] px-3 py-1 rounded-full font-semibold" x-text="student.name + ' • 12. Sınıf Sayısal'"></span>
-                <button @click="logout()" class="text-[11px] bg-red-500 px-2.5 py-1 rounded-full font-bold">Çıkış</button>
-            </div>
-        </div>
-    </header>
-
-    <!-- ANA İÇERİK -->
-    <main class="max-w-6xl mx-auto px-4 py-5 pb-24" x-show="isLoggedIn" x-cloak>
-        <div class="mb-4 flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-extrabold text-slate-900">12. Sınıf Sayısal Konu ve Soru Havuzu</h1>
-                <p class="text-xs text-slate-500">Matematik, Fizik, Kimya, Biyoloji • 20 Soruluk OGM & ÖSYM Testleri</p>
-            </div>
-            <span class="text-xs font-extrabold bg-white border px-3 py-1 rounded-full text-[#244d46]" x-text="filteredLessons.length + ' Konu'"></span>
+    <!-- ARAMA VE KATEGORİ SEKMELERİ -->
+    <div class="max-w-lg mx-auto px-4 mt-5 sticky top-0 z-30 bg-[#faf9f6]/95 backdrop-blur-sm pt-2 pb-3">
+        <!-- Ürün Arama -->
+        <div class="relative mb-3">
+            <input type="text" x-model="searchQuery" placeholder="Menüde ürün ara (örn: Latte, San Sebastian)..." class="w-full bg-white border border-stone-200 rounded-2xl pl-10 pr-4 py-3 text-xs font-medium outline-none focus:border-amber-500 shadow-sm">
+            <span class="absolute left-3.5 top-3 text-stone-400 text-sm">🔍</span>
         </div>
 
-        <div class="flex gap-2 overflow-x-auto pb-3 mb-5">
-            <template x-for="sub in subjects" :key="sub">
-                <button @click="selectedSubject = sub" :class="selectedSubject === sub ? 'bg-[#3c806d] text-white' : 'bg-white text-slate-600 border'" class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap" x-text="sub"></button>
+        <!-- Kategori Butonları -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar">
+            <template x-for="cat in kategoriler" :key="cat">
+                <button @click="selectedCategory = cat" 
+                        :class="selectedCategory === cat ? 'bg-stone-900 text-white shadow-md' : 'bg-white text-stone-600 border border-stone-200'"
+                        class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition" x-text="cat"></button>
             </template>
         </div>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <template x-for="lesson in filteredLessons" :key="lesson.id">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border flex flex-col justify-between">
-                    <div>
-                        <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-md bg-[#eaf5ee] text-[#3c806d]" x-text="lesson.subject"></span>
-                        <h3 class="font-bold text-base text-slate-900 mt-2 mb-1" x-text="lesson.title"></h3>
-                        <p class="text-xs text-slate-500 mb-4">20 Soruluk OGM / ÖSYM Testi</p>
+    <!-- MENÜ ÜRÜN LİSTESİ -->
+    <main class="max-w-lg mx-auto px-4 mt-2 space-y-3">
+        <template x-for="item in filteredMenu" :key="item.id">
+            <div class="bg-white p-3.5 rounded-3xl border border-stone-100 shadow-sm flex items-center gap-3.5 hover:shadow-md transition">
+                <img :src="item.gorsel" :alt="item.ad" class="w-20 h-20 rounded-2xl object-cover shrink-0 bg-stone-100">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-1.5 mb-0.5">
+                        <span x-show="item.populer" class="text-[9px] font-extrabold uppercase bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">🔥 Çok Satan</span>
+                        <span class="text-[10px] font-semibold text-stone-400" x-text="item.kategori"></span>
                     </div>
-                    <div>
-                        <div class="w-full bg-slate-100 rounded-full h-2 mb-3">
-                            <div class="bg-[#3c806d] h-2 rounded-full" :style="'width: ' + lesson.progress + '%'"></div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-slate-500" x-text="'Başarı: %' + lesson.progress"></span>
-                            <button @click="openLesson(lesson)" class="bg-[#3c806d] text-white text-xs px-4 py-2 rounded-xl font-bold">Konuyu Aç & 20 Soru</button>
-                        </div>
-                    </div>
+                    <h3 class="font-bold text-sm text-stone-900 truncate" x-text="item.ad"></h3>
+                    <p class="text-[11px] text-stone-500 line-clamp-2 mt-0.5 leading-snug" x-text="item.aciklama"></p>
+                    <div class="mt-2 font-extrabold text-sm text-amber-600" x-text="item.fiyat + ' ₺'"></div>
                 </div>
-            </template>
-        </div>
+            </div>
+        </template>
     </main>
 
-    <!-- TEST MODALI -->
-    <div x-show="selectedLesson" class="fixed inset-0 bg-black/65 z-50 flex items-center justify-center p-3" x-cloak>
-        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 shadow-2xl relative max-h-[92vh] overflow-y-auto">
-            <button @click="selectedLesson = null" class="sticky top-0 float-right bg-slate-100 w-8 h-8 rounded-full font-bold text-sm">✕</button>
-            <h2 class="text-lg font-extrabold text-slate-900 mb-3" x-text="selectedLesson?.title"></h2>
-
-            <div class="flex border-b border-slate-200 mb-4 gap-4">
-                <button @click="modalStep = 'notes'" :class="modalStep === 'notes' ? 'border-b-2 border-[#3c806d] text-[#3c806d] font-bold' : 'text-slate-500'" class="pb-2 text-xs">1. Konu Anlatımı</button>
-                <button @click="modalStep = 'quiz'" :class="modalStep === 'quiz' ? 'border-b-2 border-[#3c806d] text-[#3c806d] font-bold' : 'text-slate-500'" class="pb-2 text-xs">2. 20 Soruluk OGM & ÖSYM Testi</button>
-            </div>
-
-            <div x-show="modalStep === 'notes'" class="space-y-4">
-                <div class="bg-[#f4f9f6] p-4 rounded-2xl text-sm text-slate-800 leading-relaxed" x-html="selectedLesson?.notes"></div>
-                <button @click="modalStep = 'quiz'" class="w-full bg-[#244d46] text-white py-3.5 rounded-2xl font-bold text-sm">20 Soruluk Teste Başla →</button>
-            </div>
-
-            <div x-show="modalStep === 'quiz'" class="space-y-5">
-                <template x-for="(q, qIndex) in selectedLesson?.questions" :key="qIndex">
-                    <div class="border rounded-2xl p-4 bg-slate-50">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-extrabold text-[#3c806d]" x-text="'Soru ' + (qIndex + 1) + ' / 20'"></span>
-                            <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded" x-text="q.source"></span>
-                        </div>
-                        <p class="text-sm font-semibold text-slate-900 mb-3" x-text="q.text"></p>
-                        <div class="space-y-2">
-                            <template x-for="(opt, oIndex) in q.options" :key="oIndex">
-                                <button @click="if(!quizSubmitted) userAnswers[qIndex] = oIndex" :class="getOptClass(qIndex, oIndex, q.correct)" class="w-full text-left text-xs p-3 rounded-xl border flex justify-between">
-                                    <span x-text="opt"></span>
-                                    <span x-show="quizSubmitted && oIndex === q.correct" class="font-bold text-emerald-700">✓ Doğru</span>
-                                </button>
-                            </template>
-                        </div>
-                        <div x-show="quizSubmitted" class="mt-2.5 p-2.5 bg-blue-50 rounded-xl text-xs text-blue-900" x-text="'Çözüm: ' + q.explanation"></div>
-                    </div>
-                </template>
-
-                <div x-show="quizSubmitted" class="p-4 rounded-2xl bg-[#eaf5ee] text-center">
-                    <p class="text-base font-extrabold text-[#244d46]" x-text="'Test Sonucu: ' + quizScore + ' Doğru / ' + (20 - quizScore) + ' Yanlış'"></p>
+    <!-- ALT SABİT GOOGLE YORUM ÇAĞRI BARI -->
+    <div class="fixed bottom-4 inset-x-4 max-w-lg mx-auto z-40">
+        <button @click="reviewModal = true; rating = 0; feedbackSent = false" class="w-full bg-stone-900 text-white py-3.5 px-5 rounded-2xl shadow-2xl flex items-center justify-between border border-stone-700 hover:bg-stone-800 transition">
+            <div class="flex items-center gap-2.5 text-left">
+                <span class="text-xl">🌟</span>
+                <div>
+                    <div class="text-xs font-extrabold text-white">Deneyiminiz nasıldı?</div>
+                    <div class="text-[10px] text-stone-300">Bizi Google'da değerlendirin, sürpriz ikram kazanın!</div>
                 </div>
+            </div>
+            <span class="bg-amber-500 text-stone-950 text-[11px] font-extrabold px-3 py-1.5 rounded-xl">Puan Ver →</span>
+        </button>
+    </div>
 
-                <button x-show="!quizSubmitted" @click="submitQuiz()" class="w-full bg-[#3c806d] text-white py-3.5 rounded-2xl font-bold text-sm">Testi Bitir</button>
-                <button x-show="quizSubmitted" @click="selectedLesson = null" class="w-full bg-slate-900 text-white py-3.5 rounded-2xl font-bold text-sm">Kataloğa Dön</button>
+    <!-- AKILLI GOOGLE YORUM FİLTRE MODALI -->
+    <div x-show="reviewModal" class="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4" x-cloak>
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative text-center">
+            <button @click="reviewModal = false" class="absolute top-4 right-4 bg-stone-100 w-8 h-8 rounded-full font-bold text-xs text-stone-500">✕</button>
+            
+            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">⭐</div>
+            <h2 class="text-lg font-extrabold text-stone-900">Hizmetimizi Puanlayın</h2>
+            <p class="text-xs text-stone-500 mt-1 mb-5" x-text="mekan.ad + ' deneyiminiz nasıldı?'"></p>
+
+            <!-- Yıldız Seçimi -->
+            <div class="flex justify-center gap-2 mb-5">
+                <template x-for="star in [1, 2, 3, 4, 5]" :key="star">
+                    <button @click="handleRating(star)" class="text-3xl transition transform hover:scale-110" :class="rating >= star ? 'text-amber-400' : 'text-stone-200'">★</button>
+                </template>
+            </div>
+
+            <!-- 1-3 Yıldız Seçilirse Açılan Gizli Şikayet Formu -->
+            <div x-show="rating > 0 && rating <= 3 && !feedbackSent" class="text-left space-y-3">
+                <p class="text-xs font-bold text-rose-600 bg-rose-50 p-2.5 rounded-xl">Üzgünüz! Neyi daha iyi yapabilirdik? Mesajınız doğrudan işletme sahibine iletilecektir.</p>
+                <textarea x-model="feedbackText" rows="3" placeholder="Görüş veya önerinizi buraya yazın..." class="w-full border border-stone-200 rounded-xl p-3 text-xs outline-none focus:border-stone-900"></textarea>
+                <button @click="feedbackSent = true" class="w-full bg-stone-900 text-white py-3 rounded-xl text-xs font-bold">İşletme Sahibine Gönder</button>
+            </div>
+
+            <div x-show="feedbackSent" class="p-4 bg-emerald-50 text-emerald-800 rounded-2xl text-xs font-bold">
+                ✓ Geri bildiriminiz doğrudan yöneticimize iletildi. Teşekkür ederiz!
+            </div>
+
+            <!-- 4-5 Yıldız Seçilirse Google Haritalar Yönlendirmesi -->
+            <div x-show="rating >= 4" class="space-y-3">
+                <p class="text-xs font-bold text-emerald-700 bg-emerald-50 p-3 rounded-xl">Harika! Bizi Google Haritalar'da 5 yıldızla desteklemek ister misiniz?</p>
+                <a :href="mekan.googleYorumLinki" target="_blank" class="block w-full bg-amber-500 text-stone-950 py-3.5 rounded-xl text-xs font-extrabold shadow-md hover:bg-amber-400 transition">
+                    Google'da Yorum Yap & Puan Ver ↗
+                </a>
             </div>
         </div>
+    </div>
+
+    <!-- QOREX FOOTER / MARKA İMZASI -->
+    <div class="text-center mt-10 text-[11px] text-stone-400 font-medium">
+        Bu dijital menü <span class="font-bold text-stone-600">Qorex</span> altyapısıyla güçlendirilmiştir.
     </div>
 
     <script>
-        function createQs(name) {
-            let arr = [];
-            for(let i=1; i<=20; i++) {
-                arr.push({
-                    source: i%2===0 ? "ÖSYM Çıkmış Soru" : "OGM Materyal",
-                    text: `${name} - ÖSYM Tarzı Soru #${i}: Bu kazanımla ilgili sınavda sorulan öncüllü yorum sorusunda doğru yaklaşım hangisidir?`,
-                    options: ["A) Yalnız I", "B) I ve II", "C) Yalnız III", "D) II ve III", "E) I, II ve III"],
-                    correct: 1,
-                    explanation: `${name} - ${i}. soru çözümü: ÖSYM mantığına göre temel formül ve tanım aralığı uygulandığında I ve II doğrudur.`
-                });
-            }
-            return arr;
-        }
-
-        function dersProPlusApp() {
+        function qrMenuApp() {
             return {
-                isLoggedIn: false,
-                authStep: 'home',
-                googleAccounts: [
-                    { name: 'Kerem Soygazlı', email: 'spiderman04072009@gmail.com', initial: 'K', bg: 'bg-emerald-600' },
-                    { name: 'Kaan Demir', email: 'kaandemir.yks2027@gmail.com', initial: 'K', bg: 'bg-blue-600' },
-                    { name: 'Ahmet Dülger', email: 'dulger602@gmail.com', initial: 'A', bg: 'bg-purple-600' }
+                mekan: {
+                    ad: "Artisan Roast & Bakery",
+                    altBaslik: "3. Nesil Kahve & Tatlı",
+                    logoHarf: "A",
+                    wifiSifre: "Artisan2026!",
+                    instagramKullanici: "@artisanroast",
+                    instagramUrl: "https://instagram.com",
+                    googleYorumLinki: "https://www.google.com/maps",
+                    kapakGorseli: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80"
+                },
+
+                kategoriler: ["Tümü", "Sıcak Kahveler", "Soğuk Kahveler", "Tatlılar", "Atıştırmalık"],
+                selectedCategory: "Tümü",
+                searchQuery: "",
+                wifiCopied: false,
+                reviewModal: false,
+                rating: 0,
+                feedbackText: "",
+                feedbackSent: false,
+
+                menu: [
+                    {
+                        id: 1, kategori: "Sıcak Kahveler", populer: true,
+                        ad: "Cortado", fiyat: 115,
+                        aciklama: "Çift shot espresso ve kadifemsi ısıtılmış sütün kusursuz dengesi.",
+                        gorsel: "https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=300&q=80"
+                    },
+                    {
+                        id: 2, kategori: "Sıcak Kahveler", populer: false,
+                        ad: "Caramel Macchiato", fiyat: 135,
+                        aciklama: "Ev yapımı tuzlu karamel sos, taze espresso ve kremsi süt köpüğü.",
+                        gorsel: "https://images.unsplash.com/photo-1485808191679-5f86510681a2?auto=format&fit=crop&w=300&q=80"
+                    },
+                    {
+                        id: 3, kategori: "Soğuk Kahveler", populer: true,
+                        ad: "Iced Spanish Latte", fiyat: 140,
+                        aciklama: "Yoğunlaştırılmış süt, buz ve özel harman çift shot espresso.",
+                        gorsel: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=300&q=80"
+                    },
+                    {
+                        id: 4, kategori: "Tatlılar", populer: true,
+                        ad: "San Sebastian Cheesecake", fiyat: 185,
+                        aciklama: "Akışkan iç dokusu ve yanında sıcak Belçika çikolatası sosu ile.",
+                        gorsel: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=300&q=80"
+                    },
+                    {
+                        id: 5, kategori: "Tatlılar", populer: false,
+                        ad: "Fıstıklı Kruvasan", fiyat: 165,
+                        aciklama: "El yapımı tereyağlı kruvasan içinde yoğun Antep fıstığı kreması.",
+                        gorsel: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=300&q=80"
+                    },
+                    {
+                        id: 6, kategori: "Atıştırmalık", populer: false,
+                        ad: "Avokadolu Ekşi Maya Tost", fiyat: 195,
+                        aciklama: "Kızarmış ekşi maya ekmeği üzerinde ezme avokado, poşe yumurta ve çörek otu.",
+                        gorsel: "https://images.unsplash.com/photo-1525351484163-7529414342d8?auto=format&fit=crop&w=300&q=80"
+                    }
                 ],
-                student: { name: '', email: '' },
-                selectedSubject: 'Tümü',
-                selectedLesson: null,
-                modalStep: 'notes',
-                userAnswers: {},
-                quizSubmitted: false,
-                quizScore: 0,
-                subjects: ['Tümü', 'Matematik', 'Fizik', 'Kimya', 'Biyoloji'],
-                
-                lessons: [
-                    { id: 'm1', subject: 'Matematik', progress: 0, title: 'Üstel ve Logaritmik Fonksiyonlar', notes: 'Logaritma tanım kümesi (taban > 0, ifade > 0) ve kuralları.', questions: createQs('Logaritma') },
-                    { id: 'm2', subject: 'Matematik', progress: 0, title: 'Diziler (Aritmetik ve Geometrik)', notes: 'Aritmetik dizi genel terimi ve geometrik dizi oran kuralları.', questions: createQs('Diziler') },
-                    { id: 'm3', subject: 'Matematik', progress: 0, title: 'Limit ve Süreklilik', notes: 'Sağ-sol limit eşitliği ve süreklilik şartları.', questions: createQs('Limit') },
-                    { id: 'm4', subject: 'Matematik', progress: 0, title: 'Türev ve Uygulamaları', notes: 'Teğet eğimi, artan-azalan fonksiyonlar ve maksimum-minimum.', questions: createQs('Türev') },
-                    { id: 'm5', subject: 'Matematik', progress: 0, title: 'İntegral ve Alan Hesapları', notes: 'Belirli integral ile eğri altında kalan alanlar.', questions: createQs('İntegral') },
-                    
-                    { id: 'f1', subject: 'Fizik', progress: 0, title: 'Düzgün Çembersel Hareket ve Kütle Çekim', notes: 'Çizgisel hız, merkezcil ivme ve Kepler kanunları.', questions: createQs('Çembersel Hareket') },
-                    { id: 'f2', subject: 'Fizik', progress: 0, title: 'Basit Harmonik Hareket', notes: 'Yay ve basit sarkaç periyot denklemleri.', questions: createQs('Basit Harmonik Hareket') },
-                    { id: 'f3', subject: 'Fizik', progress: 0, title: 'Dalga Mekaniği ve Optik Girişim', notes: 'Çift yarıkta girişim ve saçak genişliği.', questions: createQs('Dalga Mekaniği') },
-                    { id: 'f4', subject: 'Fizik', progress: 0, title: 'Modern Fizik ve Görelilik', notes: 'Fotoelektrik olay, foton enerjisi ve radyoaktivite.', questions: createQs('Modern Fizik') },
 
-                    { id: 'k1', subject: 'Kimya', progress: 0, title: 'Kimya ve Elektrik (Piller ve Elektroliz)', notes: 'Galvanik piller, anot-katot olayları ve Faraday yasaları.', questions: createQs('Kimya ve Elektrik') },
-                    { id: 'k2', subject: 'Kimya', progress: 0, title: 'Organik Kimya (Hidrokarbonlar)', notes: 'Hibritleşme türleri ve fonksiyonel gruplar.', questions: createQs('Organik Kimya') },
+                get filteredMenu() {
+                    return this.menu.filter(item => {
+                        const matchCat = this.selectedCategory === "Tümü" || item.kategori === this.selectedCategory;
+                        const matchSearch = item.ad.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                                            item.aciklama.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        return matchCat && matchSearch;
+                    });
+                },
 
-                    { id: 'b1', subject: 'Biyoloji', progress: 0, title: 'Genden Proteine (DNA, RNA, Protein Sentezi)', notes: 'Replikasyon, transkripsiyon ve translasyon aşamaları.', questions: createQs('Genden Proteine') },
-                    { id: 'b2', subject: 'Biyoloji', progress: 0, title: 'Fotosentez ve Kemosentez', notes: 'Işığa bağımlı reaksiyonlar ve Calvin döngüsü.', questions: createQs('Fotosentez') },
-                    { id: 'b3', subject: 'Biyoloji', progress: 0, title: 'Hücresel Solunum', notes: 'Glikoliz, Krebs çemberi ve ETS ile ATP üretimi.', questions: createQs('Hücresel Solunum') },
-                    { id: 'b4', subject: 'Biyoloji', progress: 0, title: 'Bitki Biyolojisi', notes: 'Meristem doku ve iletim demetleri ile madde taşınması.', questions: createQs('Bitki Biyolojisi') }
-                ],
+                copyWifi() {
+                    navigator.clipboard.writeText(this.mekan.wifiSifre);
+                    this.wifiCopied = true;
+                    setTimeout(() => this.wifiCopied = false, 2500);
+                },
 
-                selectAccount(acc) {
-                    this.student.name = acc.name;
-                    this.student.email = acc.email;
-                    this.isLoggedIn = true;
-                },
-                logout() {
-                    this.isLoggedIn = false;
-                    this.authStep = 'home';
-                },
-                get filteredLessons() {
-                    return this.lessons.filter(l => this.selectedSubject === 'Tümü' || l.subject === this.selectedSubject);
-                },
-                openLesson(lesson) {
-                    this.selectedLesson = lesson;
-                    this.modalStep = 'notes';
-                    this.userAnswers = {};
-                    this.quizSubmitted = false;
-                },
-                getOptClass(qIdx, oIdx, corr) {
-                    if (!this.quizSubmitted) return this.userAnswers[qIdx] === oIdx ? 'bg-[#eaf5ee] border-[#3c806d] font-bold' : 'bg-white';
-                    if (oIdx === corr) return 'bg-emerald-50 border-emerald-500 font-bold text-emerald-900';
-                    if (this.userAnswers[qIdx] === oIdx) return 'bg-red-50 border-red-400 text-red-900';
-                    return 'bg-white opacity-60';
-                },
-                submitQuiz() {
-                    let s = 0;
-                    this.selectedLesson.questions.forEach((q, idx) => { if (this.userAnswers[idx] === q.correct) s++; });
-                    this.quizScore = s;
-                    this.quizSubmitted = true;
-                    this.selectedLesson.progress = Math.round((s / 20) * 100);
+                handleRating(star) {
+                    this.rating = star;
+                    this.feedbackSent = false;
                 }
             }
         }
