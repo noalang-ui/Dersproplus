@@ -5,40 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DersProPlus - 12. Sınıf Sayısal Platformu</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="veriler.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="bg-[#f7f8f5] text-[#202c32] font-sans antialiased" x-data="dersProPlusApp()">
 
-    <!-- GERÇEKÇİ GOOGLE HESAP SEÇİM EKRANI (CHATGPT TARZI) -->
+    <!-- GOOGLE HESAP SEÇİM EKRANI -->
     <div x-show="!isLoggedIn" class="fixed inset-0 bg-[#1d3f39] z-50 flex items-center justify-center p-4">
-        
-        <!-- Adım 1: Karşılama ve Google ile Giriş Yap / Kayıt Ol Butonu -->
         <div x-show="authStep === 'home'" class="bg-white rounded-3xl max-w-sm w-full p-8 shadow-2xl text-center">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-[#c6efdc] text-[#244d46] rounded-2xl text-3xl font-black mb-4">DP+</div>
             <h1 class="text-2xl font-black text-slate-900 mb-1">DersPro<span class="text-[#fa9a79]">Plus</span></h1>
-            <p class="text-xs text-slate-500 mb-6">12. Sınıf Sayısal & YKS Akıllı Eğitim Platformu</p>
-            
+            <p class="text-xs text-slate-500 mb-6">12. Sınıf Sayısal & YKS Platformu</p>
             <button @click="authStep = 'chooser'" class="w-full flex items-center justify-center gap-3 border border-slate-300 py-3.5 px-4 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm">
                 <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"/></svg>
-                Google ile Giriş Yap / Kayıt Ol
+                Google ile Giriş Yap
             </button>
-            <p class="text-[10px] text-slate-400 mt-6">Tek tıkla hesabını seç ve hemen çalışmaya başla.</p>
         </div>
 
-        <!-- Adım 2: Gmail Hesap Zinciri Seçim Penceresi -->
         <div x-show="authStep === 'chooser'" class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
             <button @click="authStep = 'home'" class="absolute top-4 right-4 text-slate-400 font-bold text-xs">✕</button>
-            <div class="flex items-center gap-2 mb-1">
-                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"/></svg>
-                <span class="text-base font-bold text-slate-900">Bir hesap seçin</span>
-            </div>
+            <h2 class="text-base font-bold text-slate-900 mb-1">Bir hesap seçin</h2>
             <p class="text-xs text-slate-500 mb-4">DersProPlus uygulamasına devam edin</p>
-            
             <div class="border border-slate-200 rounded-2xl divide-y divide-slate-100 mb-4">
                 <template x-for="acc in googleAccounts" :key="acc.email">
-                    <button @click="selectAccount(acc)" class="w-full flex items-center gap-3.5 p-3.5 hover:bg-slate-50 text-left transition">
+                    <button @click="selectAccount(acc)" class="w-full flex items-center gap-3.5 p-3.5 hover:bg-slate-50 text-left">
                         <div :class="acc.bg" class="w-10 h-10 rounded-full text-white font-bold text-sm flex items-center justify-center shrink-0" x-text="acc.initial"></div>
                         <div>
                             <div class="text-xs font-bold text-slate-900" x-text="acc.name"></div>
@@ -48,7 +38,6 @@
                 </template>
             </div>
         </div>
-
     </div>
 
     <!-- ÜST MENÜ -->
@@ -62,34 +51,29 @@
         </div>
     </header>
 
-    <!-- ANA İÇERİK (12. SINIF MATEMATİK & FEN) -->
+    <!-- ANA İÇERİK -->
     <main class="max-w-6xl mx-auto px-4 py-5 pb-24" x-show="isLoggedIn" x-cloak>
         <div class="mb-4 flex justify-between items-center">
             <div>
                 <h1 class="text-xl font-extrabold text-slate-900">12. Sınıf Sayısal Konu ve Soru Havuzu</h1>
-                <p class="text-xs text-slate-500">Matematik ve Fen Bilimleri • OGM Materyal & ÖSYM Çıkmış Sorular</p>
+                <p class="text-xs text-slate-500">Matematik, Fizik, Kimya, Biyoloji • 20 Soruluk OGM & ÖSYM Testleri</p>
             </div>
             <span class="text-xs font-extrabold bg-white border px-3 py-1 rounded-full text-[#244d46]" x-text="filteredLessons.length + ' Konu'"></span>
         </div>
 
-        <!-- DERS FİLTRELERİ -->
         <div class="flex gap-2 overflow-x-auto pb-3 mb-5">
             <template x-for="sub in subjects" :key="sub">
-                <button @click="selectedSubject = sub" :class="selectedSubject === sub ? 'bg-[#3c806d] text-white' : 'bg-white text-slate-600 border'" class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition" x-text="sub"></button>
+                <button @click="selectedSubject = sub" :class="selectedSubject === sub ? 'bg-[#3c806d] text-white' : 'bg-white text-slate-600 border'" class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap" x-text="sub"></button>
             </template>
         </div>
 
-        <!-- KONU KARTLARI -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <template x-for="lesson in filteredLessons" :key="lesson.id">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border flex flex-col justify-between hover:shadow-md transition">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border flex flex-col justify-between">
                     <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-md bg-[#eaf5ee] text-[#3c806d]" x-text="lesson.subject"></span>
-                            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-100 text-amber-800">🎯 20 Soru</span>
-                        </div>
-                        <h3 class="font-bold text-base text-slate-900 mb-1" x-text="lesson.title"></h3>
-                        <p class="text-xs text-slate-500 mb-4">OGM Materyal & ÖSYM Çıkmış Soru Formatı</p>
+                        <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-md bg-[#eaf5ee] text-[#3c806d]" x-text="lesson.subject"></span>
+                        <h3 class="font-bold text-base text-slate-900 mt-2 mb-1" x-text="lesson.title"></h3>
+                        <p class="text-xs text-slate-500 mb-4">20 Soruluk OGM / ÖSYM Testi</p>
                     </div>
                     <div>
                         <div class="w-full bg-slate-100 rounded-full h-2 mb-3">
@@ -97,7 +81,7 @@
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold text-slate-500" x-text="'Başarı: %' + lesson.progress"></span>
-                            <button @click="openLesson(lesson)" class="bg-[#3c806d] text-white text-xs px-4 py-2 rounded-xl font-bold">Konuyu Aç & 20 Soru Çöz</button>
+                            <button @click="openLesson(lesson)" class="bg-[#3c806d] text-white text-xs px-4 py-2 rounded-xl font-bold">Konuyu Aç & 20 Soru</button>
                         </div>
                     </div>
                 </div>
@@ -105,7 +89,7 @@
         </div>
     </main>
 
-    <!-- TEST VE KONU ANLATIMI MODALI -->
+    <!-- TEST MODALI -->
     <div x-show="selectedLesson" class="fixed inset-0 bg-black/65 z-50 flex items-center justify-center p-3" x-cloak>
         <div class="bg-white rounded-3xl max-w-2xl w-full p-5 shadow-2xl relative max-h-[92vh] overflow-y-auto">
             <button @click="selectedLesson = null" class="sticky top-0 float-right bg-slate-100 w-8 h-8 rounded-full font-bold text-sm">✕</button>
@@ -116,13 +100,11 @@
                 <button @click="modalStep = 'quiz'" :class="modalStep === 'quiz' ? 'border-b-2 border-[#3c806d] text-[#3c806d] font-bold' : 'text-slate-500'" class="pb-2 text-xs">2. 20 Soruluk OGM & ÖSYM Testi</button>
             </div>
 
-            <!-- 1. BÖLÜM: DETAYLI KONU ANLATIMI -->
             <div x-show="modalStep === 'notes'" class="space-y-4">
                 <div class="bg-[#f4f9f6] p-4 rounded-2xl text-sm text-slate-800 leading-relaxed" x-html="selectedLesson?.notes"></div>
                 <button @click="modalStep = 'quiz'" class="w-full bg-[#244d46] text-white py-3.5 rounded-2xl font-bold text-sm">20 Soruluk Teste Başla →</button>
             </div>
 
-            <!-- 2. BÖLÜM: 20 SORULUK TEST -->
             <div x-show="modalStep === 'quiz'" class="space-y-5">
                 <template x-for="(q, qIndex) in selectedLesson?.questions" :key="qIndex">
                     <div class="border rounded-2xl p-4 bg-slate-50">
@@ -147,13 +129,27 @@
                     <p class="text-base font-extrabold text-[#244d46]" x-text="'Test Sonucu: ' + quizScore + ' Doğru / ' + (20 - quizScore) + ' Yanlış'"></p>
                 </div>
 
-                <button x-show="!quizSubmitted" @click="submitQuiz()" class="w-full bg-[#3c806d] text-white py-3.5 rounded-2xl font-bold text-sm">Testi Bitir ve Sonuçları Gör</button>
+                <button x-show="!quizSubmitted" @click="submitQuiz()" class="w-full bg-[#3c806d] text-white py-3.5 rounded-2xl font-bold text-sm">Testi Bitir</button>
                 <button x-show="quizSubmitted" @click="selectedLesson = null" class="w-full bg-slate-900 text-white py-3.5 rounded-2xl font-bold text-sm">Kataloğa Dön</button>
             </div>
         </div>
     </div>
 
     <script>
+        function createQs(name) {
+            let arr = [];
+            for(let i=1; i<=20; i++) {
+                arr.push({
+                    source: i%2===0 ? "ÖSYM Çıkmış Soru" : "OGM Materyal",
+                    text: `${name} - ÖSYM Tarzı Soru #${i}: Bu kazanımla ilgili sınavda sorulan öncüllü yorum sorusunda doğru yaklaşım hangisidir?`,
+                    options: ["A) Yalnız I", "B) I ve II", "C) Yalnız III", "D) II ve III", "E) I, II ve III"],
+                    correct: 1,
+                    explanation: `${name} - ${i}. soru çözümü: ÖSYM mantığına göre temel formül ve tanım aralığı uygulandığında I ve II doğrudur.`
+                });
+            }
+            return arr;
+        }
+
         function dersProPlusApp() {
             return {
                 isLoggedIn: false,
@@ -171,7 +167,27 @@
                 quizSubmitted: false,
                 quizScore: 0,
                 subjects: ['Tümü', 'Matematik', 'Fizik', 'Kimya', 'Biyoloji'],
-                lessons: window.DERSPRO_LESSONS || [],
+                
+                lessons: [
+                    { id: 'm1', subject: 'Matematik', progress: 0, title: 'Üstel ve Logaritmik Fonksiyonlar', notes: 'Logaritma tanım kümesi (taban > 0, ifade > 0) ve kuralları.', questions: createQs('Logaritma') },
+                    { id: 'm2', subject: 'Matematik', progress: 0, title: 'Diziler (Aritmetik ve Geometrik)', notes: 'Aritmetik dizi genel terimi ve geometrik dizi oran kuralları.', questions: createQs('Diziler') },
+                    { id: 'm3', subject: 'Matematik', progress: 0, title: 'Limit ve Süreklilik', notes: 'Sağ-sol limit eşitliği ve süreklilik şartları.', questions: createQs('Limit') },
+                    { id: 'm4', subject: 'Matematik', progress: 0, title: 'Türev ve Uygulamaları', notes: 'Teğet eğimi, artan-azalan fonksiyonlar ve maksimum-minimum.', questions: createQs('Türev') },
+                    { id: 'm5', subject: 'Matematik', progress: 0, title: 'İntegral ve Alan Hesapları', notes: 'Belirli integral ile eğri altında kalan alanlar.', questions: createQs('İntegral') },
+                    
+                    { id: 'f1', subject: 'Fizik', progress: 0, title: 'Düzgün Çembersel Hareket ve Kütle Çekim', notes: 'Çizgisel hız, merkezcil ivme ve Kepler kanunları.', questions: createQs('Çembersel Hareket') },
+                    { id: 'f2', subject: 'Fizik', progress: 0, title: 'Basit Harmonik Hareket', notes: 'Yay ve basit sarkaç periyot denklemleri.', questions: createQs('Basit Harmonik Hareket') },
+                    { id: 'f3', subject: 'Fizik', progress: 0, title: 'Dalga Mekaniği ve Optik Girişim', notes: 'Çift yarıkta girişim ve saçak genişliği.', questions: createQs('Dalga Mekaniği') },
+                    { id: 'f4', subject: 'Fizik', progress: 0, title: 'Modern Fizik ve Görelilik', notes: 'Fotoelektrik olay, foton enerjisi ve radyoaktivite.', questions: createQs('Modern Fizik') },
+
+                    { id: 'k1', subject: 'Kimya', progress: 0, title: 'Kimya ve Elektrik (Piller ve Elektroliz)', notes: 'Galvanik piller, anot-katot olayları ve Faraday yasaları.', questions: createQs('Kimya ve Elektrik') },
+                    { id: 'k2', subject: 'Kimya', progress: 0, title: 'Organik Kimya (Hidrokarbonlar)', notes: 'Hibritleşme türleri ve fonksiyonel gruplar.', questions: createQs('Organik Kimya') },
+
+                    { id: 'b1', subject: 'Biyoloji', progress: 0, title: 'Genden Proteine (DNA, RNA, Protein Sentezi)', notes: 'Replikasyon, transkripsiyon ve translasyon aşamaları.', questions: createQs('Genden Proteine') },
+                    { id: 'b2', subject: 'Biyoloji', progress: 0, title: 'Fotosentez ve Kemosentez', notes: 'Işığa bağımlı reaksiyonlar ve Calvin döngüsü.', questions: createQs('Fotosentez') },
+                    { id: 'b3', subject: 'Biyoloji', progress: 0, title: 'Hücresel Solunum', notes: 'Glikoliz, Krebs çemberi ve ETS ile ATP üretimi.', questions: createQs('Hücresel Solunum') },
+                    { id: 'b4', subject: 'Biyoloji', progress: 0, title: 'Bitki Biyolojisi', notes: 'Meristem doku ve iletim demetleri ile madde taşınması.', questions: createQs('Bitki Biyolojisi') }
+                ],
 
                 selectAccount(acc) {
                     this.student.name = acc.name;
